@@ -146,8 +146,15 @@ void CVisual::OnVideoInit()
 	// Clear bone data to prevent crashes during map change
 	memset(g_Bones, 0, sizeof(g_Bones));
 	
-	// Reset bone transform pointer - will be re-acquired in PostLoad if needed
-	g_pBoneTransform = NULL;
+	// Re-acquire bone transform pointer after map change
+	if (g_pEngineStudio)
+	{
+		g_pBoneTransform = (bone_matrix3x4_t *)g_pEngineStudio->StudioGetLightTransform();
+	}
+	else
+	{
+		g_pBoneTransform = NULL;
+	}
 }
 
 void CVisual::OnHUDRedraw(float flTime)
@@ -1066,29 +1073,29 @@ void CVisual::DrawBox(bool bPlayer, bool bItem, int iHealth, float boxHeight, fl
 
 		if ( g_Config.cvars.esp_box_fill != 0 )
 		{
-			g_Drawing.FillArea(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), r, g, b, g_Config.cvars.esp_box_fill);
+			g_Drawing.FillArea(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), r, g, b, g_Config.cvars.esp_box_fill);
 		}
 
 		if (nBox == 1)
 		{
-			g_Drawing.Box(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 200);
+			g_Drawing.Box(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 200);
 				
 			if (bOutline)
-				g_Drawing.BoxOutline(vecScreenBottom[0] - (boxWidth * 0.5f), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 200);
+				g_Drawing.BoxOutline(vecScreenBottom[0] - (boxWidth * 0.5f), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 200);
 		}
 		else if (nBox == 2)
 		{
-			g_Drawing.DrawCoalBox(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
+			g_Drawing.DrawCoalBox(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
 
 			if (bOutline)
-				g_Drawing.DrawOutlineCoalBox(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
+				g_Drawing.DrawOutlineCoalBox(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
 		}
 		else if (nBox == 3)
 		{
-			g_Drawing.BoxCorner(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
+			g_Drawing.BoxCorner(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
 
 			if (bOutline)
-				g_Drawing.BoxCornerOutline(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1]), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
+				g_Drawing.BoxCornerOutline(int(vecScreenBottom[0] - (boxWidth * 0.5f)), int(vecScreenBottom[1] - boxHeight), int(boxWidth), int(boxHeight), 1, r, g, b, 255);
 		}
 	}
 }

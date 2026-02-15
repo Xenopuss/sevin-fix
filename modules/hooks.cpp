@@ -165,7 +165,7 @@ void OnMenuClose()
 
 DECLARE_FUNC(void, APIENTRY, HOOKED_glBegin, GLenum mode) // wh
 {
-	if (g_Config.cvars.wallhack)
+	if (g_Config.cvars.wallhack && !g_bOverrideColor)
 	{
 		if (mode == GL_TRIANGLES || mode == GL_TRIANGLE_STRIP || mode == GL_TRIANGLE_FAN) // humans and some objects
 			glDepthRange(0, 0.25);
@@ -437,6 +437,13 @@ DECLARE_FUNC(int, __cdecl, HOOKED_CRC_MapFile, uint32 *ulCRC, char *pszMapName)
 
 DECLARE_CLASS_FUNC(void, HOOKED_StudioRenderModel, CStudioModelRenderer *thisptr)
 {
+	// Skip custom rendering during loading to prevent crashes from invalid pointers
+	if (g_bLoading)
+	{
+		ORIG_StudioRenderModel(thisptr);
+		return;
+	}
+
 	bool bRenderHandled = false;
 
 	// Calling many functions will take down our performance

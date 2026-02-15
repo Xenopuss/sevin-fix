@@ -167,8 +167,11 @@ bool __fastcall Chams(cl_entity_s *pEntity, int iChams, bool bChamsWall, float f
 
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_GREATER);
+			glDepthMask(GL_FALSE);
 
 			g_pStudioRenderer->StudioRenderFinal_Hardware();
+			
+			glDepthMask(GL_TRUE);
 		}
 
 		// Processed in OpenGL module
