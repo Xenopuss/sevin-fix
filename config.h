@@ -135,6 +135,13 @@ public:
 		float wh_wireframe_width = 1.5f;
 		float wh_wireframe_color[3] = { 0.0f, 1.0f, 0.0f };
 
+		bool wallhack_transparent = false;
+		float transparent_alpha = 0.3f;
+		bool transparent_world_only = true;
+		bool transparent_models = false;
+		float transparent_color[3] = { 1.0f, 1.0f, 1.0f };
+		int transparent_blend_mode = 0;
+
 		//-----------------------------------------------------------------------------
 		// Models Manager
 		//-----------------------------------------------------------------------------

@@ -49,6 +49,7 @@ DECLARE_HOOK(void, __cdecl, ScaleColors_RGBA, Color *clr);
 DECLARE_HOOK(void, __cdecl, SPR_Set, VHSPRITE hPic, int r, int g, int b);
 
 DECLARE_HOOK(void, APIENTRY, glBegin, GLenum);
+DECLARE_HOOK(void, APIENTRY, glEnd);
 DECLARE_HOOK(void, APIENTRY, glColor4f, GLfloat, GLfloat, GLfloat, GLfloat);
 
 DECLARE_HOOK(void, __cdecl, V_RenderView);
@@ -111,6 +112,7 @@ private:
 	void *m_pfnScaleColors;
 	void *m_pfnScaleColors_RGBA;
 	void *m_pfnglBegin;
+	void *m_pfnglEnd;
 	void *m_pfnglColor4f;
 	void *m_pfnV_RenderView;
 	void *m_pfnR_SetupFrame;
@@ -122,6 +124,7 @@ private:
 	DetourHandle_t m_hScaleColors_RGBA;
 	DetourHandle_t m_hSPR_Set;
 	DetourHandle_t m_hglBegin;
+	DetourHandle_t m_hglEnd;
 	DetourHandle_t m_hglColor4f;
 	DetourHandle_t m_hV_RenderView;
 	DetourHandle_t m_hR_SetupFrame;
@@ -218,6 +221,43 @@ DECLARE_FUNC(void, APIENTRY, HOOKED_glBegin, GLenum mode) // wh
 		}
 	}
 
+	if (g_Config.cvars.wallhack_transparent)
+	{
+		if (mode == GL_POLYGON && g_Config.cvars.transparent_world_only)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDepthMask(GL_FALSE);
+			glColor4f(
+				g_Config.cvars.transparent_color[0],
+				g_Config.cvars.transparent_color[1],
+				g_Config.cvars.transparent_color[2],
+				g_Config.cvars.transparent_alpha
+			);
+		}
+		else if (!g_Config.cvars.transparent_world_only)
+		{
+			if (mode == GL_POLYGON || mode == GL_TRIANGLES || mode == GL_TRIANGLE_STRIP || mode == GL_TRIANGLE_FAN)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glDepthMask(GL_FALSE);
+				
+				if (g_Config.cvars.transparent_blend_mode == 1)
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				else if (g_Config.cvars.transparent_blend_mode == 2)
+					glBlendFunc(GL_ONE, GL_ONE);
+				
+				glColor4f(
+					g_Config.cvars.transparent_color[0],
+					g_Config.cvars.transparent_color[1],
+					g_Config.cvars.transparent_color[2],
+					g_Config.cvars.transparent_alpha
+				);
+			}
+		}
+	}
+
 	ORIG_glBegin(mode);
 }
 
@@ -240,6 +280,17 @@ DECLARE_FUNC(void, APIENTRY, HOOKED_glColor4f, GLfloat red, GLfloat green, GLflo
 	}
 
 	ORIG_glColor4f(red, green, blue, alpha);
+}
+
+DECLARE_FUNC(void, APIENTRY, HOOKED_glEnd)
+{
+	if (g_Config.cvars.wallhack_transparent)
+	{
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
+
+	ORIG_glEnd();
 }
 
 //-----------------------------------------------------------------------------
@@ -859,12 +910,14 @@ CHooksModule::CHooksModule()
 {
 	m_pfnNetchan_CanPacket = NULL;
 	m_pfnglBegin = NULL;
+	m_pfnglEnd = NULL;
 	m_pfnglColor4f = NULL;
 	m_pfnV_RenderView = NULL;
 	m_pfnR_SetupFrame = NULL;
 
 	m_hNetchan_CanPacket = 0;
 	m_hglBegin = 0;
+	m_hglEnd = 0;
 	m_hglColor4f = 0;
 	m_hV_RenderView = 0;
 	m_hR_SetupFrame = 0;
@@ -873,11 +926,18 @@ CHooksModule::CHooksModule()
 bool CHooksModule::Load()
 {
 	m_pfnglBegin = Sys_GetProcAddress(Sys_GetModuleHandle("opengl32.dll"), "glBegin");
+	m_pfnglEnd = Sys_GetProcAddress(Sys_GetModuleHandle("opengl32.dll"), "glEnd");
 	m_pfnglColor4f = Sys_GetProcAddress(Sys_GetModuleHandle("opengl32.dll"), "glColor4f");
 
 	if ( !m_pfnglBegin )
 	{
 		Warning("Couldn't find function \"glBegin\"\n");
+		return false;
+	}
+
+	if ( !m_pfnglEnd )
+	{
+		Warning("Couldn't find function \"glEnd\"\n");
 		return false;
 	}
 
@@ -953,6 +1013,7 @@ void CHooksModule::PostLoad()
 	m_hScaleColors_RGBA = DetoursAPI()->DetourFunction( m_pfnScaleColors_RGBA, HOOKED_ScaleColors_RGBA, GET_FUNC_PTR(ORIG_ScaleColors_RGBA) );
 	m_hSPR_Set = DetoursAPI()->DetourFunction( g_pEngineFuncs->SPR_Set, HOOKED_SPR_Set, GET_FUNC_PTR(ORIG_SPR_Set) );
 	m_hglBegin = DetoursAPI()->DetourFunction( m_pfnglBegin, HOOKED_glBegin, GET_FUNC_PTR(ORIG_glBegin) );
+	m_hglEnd = DetoursAPI()->DetourFunction( m_pfnglEnd, HOOKED_glEnd, GET_FUNC_PTR(ORIG_glEnd) );
 	m_hglColor4f = DetoursAPI()->DetourFunction( m_pfnglColor4f, HOOKED_glColor4f, GET_FUNC_PTR(ORIG_glColor4f) );
 	m_hV_RenderView = DetoursAPI()->DetourFunction( m_pfnV_RenderView, HOOKED_V_RenderView, GET_FUNC_PTR(ORIG_V_RenderView) );
 	if ( m_pfnR_SetupFrame )
@@ -975,6 +1036,7 @@ void CHooksModule::Unload()
 	DetoursAPI()->RemoveDetour( m_hScaleColors_RGBA );
 	DetoursAPI()->RemoveDetour( m_hSPR_Set );
 	DetoursAPI()->RemoveDetour( m_hglBegin );
+	DetoursAPI()->RemoveDetour( m_hglEnd );
 	DetoursAPI()->RemoveDetour( m_hglColor4f );
 	DetoursAPI()->RemoveDetour( m_hV_RenderView );
 	if ( m_pfnR_SetupFrame )

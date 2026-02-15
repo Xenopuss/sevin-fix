@@ -207,6 +207,14 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("Wireframe_R", cvars.wh_wireframe_color[0]);
 			ConfigManager()->ImportParam("Wireframe_G", cvars.wh_wireframe_color[1]);
 			ConfigManager()->ImportParam("Wireframe_B", cvars.wh_wireframe_color[2]);
+			ConfigManager()->ImportParam("TransparentWalls", cvars.wallhack_transparent);
+			ConfigManager()->ImportParam("TransparentAlpha", cvars.transparent_alpha);
+			ConfigManager()->ImportParam("TransparentWorldOnly", cvars.transparent_world_only);
+			ConfigManager()->ImportParam("TransparentModels", cvars.transparent_models);
+			ConfigManager()->ImportParam("Transparent_R", cvars.transparent_color[0]);
+			ConfigManager()->ImportParam("Transparent_G", cvars.transparent_color[1]);
+			ConfigManager()->ImportParam("Transparent_B", cvars.transparent_color[2]);
+			ConfigManager()->ImportParam("TransparentBlendMode", cvars.transparent_blend_mode);
 
 			ConfigManager()->EndSectionImport();
 		}
@@ -662,6 +670,14 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("Wireframe_R", cvars.wh_wireframe_color[0]);
 			ConfigManager()->ExportParam("Wireframe_G", cvars.wh_wireframe_color[1]);
 			ConfigManager()->ExportParam("Wireframe_B", cvars.wh_wireframe_color[2]);
+			ConfigManager()->ExportParam("TransparentWalls", cvars.wallhack_transparent);
+			ConfigManager()->ExportParam("TransparentAlpha", cvars.transparent_alpha);
+			ConfigManager()->ExportParam("TransparentWorldOnly", cvars.transparent_world_only);
+			ConfigManager()->ExportParam("TransparentModels", cvars.transparent_models);
+			ConfigManager()->ExportParam("Transparent_R", cvars.transparent_color[0]);
+			ConfigManager()->ExportParam("Transparent_G", cvars.transparent_color[1]);
+			ConfigManager()->ExportParam("Transparent_B", cvars.transparent_color[2]);
+			ConfigManager()->ExportParam("TransparentBlendMode", cvars.transparent_blend_mode);
 
 			ConfigManager()->EndSectionExport();
 		}

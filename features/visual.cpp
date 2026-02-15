@@ -107,6 +107,12 @@ CON_COMMAND_EXTERN(sc_wallhack_wireframe_models, ConCommand_WireframeModels, "Wi
 	g_Config.cvars.wallhack_wireframe_models = !g_Config.cvars.wallhack_wireframe_models;
 }
 
+CON_COMMAND_EXTERN(sc_transparent_walls, ConCommand_TransparentWalls, "Toggle transparent walls")
+{
+	Msg(g_Config.cvars.wallhack_transparent ? "Transparent walls disabled\n" : "Transparent walls enabled\n");
+	g_Config.cvars.wallhack_transparent = !g_Config.cvars.wallhack_transparent;
+}
+
 CON_COMMAND_EXTERN(sc_esp, ConCommand_ESP, "Toggle ESP")
 {
 	Msg(g_Config.cvars.esp ? "ESP disabled\n" : "ESP enabled\n");

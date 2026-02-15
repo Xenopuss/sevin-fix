@@ -893,6 +893,34 @@ void CMenuModule::DrawWindowVisuals()
 
 					ImGui::Separator();
 
+					ImGui::Spacing();
+					ImGui::Text("Transparent Walls");
+					ImGui::Spacing();
+
+					ImGui::Checkbox("Enable Transparent Walls", &g_Config.cvars.wallhack_transparent);
+
+					ImGui::Spacing();
+
+					ImGui::SliderFloat("Alpha", &g_Config.cvars.transparent_alpha, 0.0f, 1.0f, "%.2f");
+
+					ImGui::Spacing();
+
+					ImGui::Checkbox("World Only", &g_Config.cvars.transparent_world_only);
+					ImGui::Checkbox("Include Models", &g_Config.cvars.transparent_models);
+
+					ImGui::Spacing();
+
+					ImGui::Combo("Blend Mode", &g_Config.cvars.transparent_blend_mode, "Standard\0Additive\0Multiplicative\0");
+
+					ImGui::Spacing();
+
+					ImGui::ColorEdit3("Tint Color", g_Config.cvars.transparent_color);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					ImGui::Separator();
+
 					ImGui::Text("");
 					ImGui::Spacing();
 
