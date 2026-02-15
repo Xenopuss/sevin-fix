@@ -200,17 +200,9 @@ void CMenuModule::Draw()
 				m_bMenuUtility ^= true;
 			}
 
-			ImGui::Spacing();
+ImGui::Spacing();
 			ImGui::Separator();
 			ImGui::Spacing();
-
-			ImGui::Spacing();
-
-			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 2) - (66));
-			if (ImGui::Button("Config", ImVec2(149, 28)))
-			{
-				m_bMenuConfig ^= true;
-			}
 
 			ImGui::Spacing();
 
@@ -226,7 +218,6 @@ void CMenuModule::Draw()
 		DrawWindowVisuals();
 		DrawWindowHUD();
 		DrawWindowUtility();
-		DrawWindowConfig();
 		DrawWindowSettings();
 	}
 }
@@ -2181,63 +2172,7 @@ void CMenuModule::DrawWindowUtility()
 				}
 			}
 		}
-	}
 }
-
-void CMenuModule::DrawWindowConfig()
-{
-	// Config
-	if (m_bMenuConfig)
-	{
-		ImGui::SetNextWindowSize(ImVec2(300.0f, 250.0f), ImGuiCond_FirstUseEver);
-		if (g_Config.cvars.menu_auto_resize)
-		{
-			ImGui::Begin("Config", &m_bMenuConfig, ImGuiWindowFlags_NoResize);
-			ImGui::SetWindowSize(ImVec2(300.0f, 250.0f));
-		}
-		else
-		{
-			ImGui::Begin("Config", &m_bMenuConfig);
-		}
-
-		ImGui::Spacing();
-
-		ImGui::Text("List of Configs");
-
-		if (ImGui::BeginListBox("##configs_list", ImVec2(-FLT_MIN, 8 * ImGui::GetTextLineHeightWithSpacing())))
-		{
-			for (size_t i = 0; i < g_Config.configs.size(); i++)
-			{
-				bool bSelected = (g_Config.current_config.compare( g_Config.configs[i] ) == 0);
-
-	if (ImGui::Selectable(g_Config.configs[i].c_str(), bSelected))
-				{
-					g_Config.current_config = g_Config.configs[i];
-					g_Config.Load();
-					LoadMenuTheme();
-					WindowStyle();
-				}
-
-				if (bSelected)
-					ImGui::SetItemDefaultFocus();
-			}
-
-		ImGui::EndListBox();
-		}
-
-		if (ImGui::Button("New"))
-			g_Config.New();
-			
-		ImGui::SameLine();
-			
-		if (ImGui::Button("Delete"))
-			g_Config.Remove();
-
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		ImGui::End();
-	}
 }
 
 void CMenuModule::DrawWindowSettings()
@@ -2481,9 +2416,8 @@ CMenuModule::CMenuModule()
 	m_hwglSwapBuffers = 0;
 	m_hSetCursorPos = 0;
 
-	m_bThemeLoaded = false;
+m_bThemeLoaded = false;
 	m_bMenuSettings = false;
-	m_bMenuConfig = false;
 	m_bMenuAim = false;
 	m_bMenuVisuals = false;
 	m_bMenuHud = false;

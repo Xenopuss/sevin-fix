@@ -75,9 +75,6 @@ public:
 
 private:
 	void InitFolders(ISvenModAPI *pSvenModAPI);
-
-private:
-	float m_flPlatTime;
 };
 
 CSvenInternal g_SvenInternal;
@@ -113,11 +110,10 @@ bool CSvenInternal::Load(CreateInterfaceFn pfnSvenModFactory, ISvenModAPI *pSven
 	g_Config.Init();
 	g_Config.Load();
 
-	g_Drawing.Init();
+g_Drawing.Init();
 	g_Visual.ResetJumpSpeed();
 
 	g_pEngineFuncs->ClientCmd("cl_timeout 999999;unbind F1;unbind F2;exec sven_internal.cfg");
-	m_flPlatTime = g_pEngineFuncs->Sys_FloatTime();
 
 	ConColorMsg({ 40, 255, 40, 255 }, "[Sven Internal] Successfully loaded\n");
 	return true;
@@ -158,16 +154,7 @@ void CSvenInternal::Unpause(void)
 
 void CSvenInternal::GameFrame(client_state_t state, double frametime, bool bPostRunCmd)
 {
-	if (bPostRunCmd)
-	{
-		if (g_pEngineFuncs->Sys_FloatTime() - m_flPlatTime >= 0.5f)
-		{
-			g_Config.UpdateConfigs();
-
-			m_flPlatTime = g_pEngineFuncs->Sys_FloatTime();
-		}
-	}
-	else
+	if (!bPostRunCmd)
 	{
 		if (state >= CLS_CONNECTED)
 		{

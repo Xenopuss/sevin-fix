@@ -23,18 +23,11 @@
 
 class CConfig
 {
-	friend void sc_load_config(const CCommand &args);
-	friend void sc_save_config(const CCommand &args);
-
 public:
 	void Init();
-	void UpdateConfigs();
 
 	bool Load();
 	void Save();
-
-	void New();
-	void Remove();
 
 	struct config_vars
 	{
@@ -400,9 +393,6 @@ public:
 
 	config_vars cvars;
 	config_vars default_cvars;
-
-	std::string current_config;
-	std::vector<std::string> configs;
 
 private:
 	bool m_bConfigDirty = false;

@@ -32,7 +32,6 @@ private:
 	void DrawWindowVisuals();
 	void DrawWindowHUD();
 	void DrawWindowUtility();
-	void DrawWindowConfig();
 	void DrawWindowSettings();
 
 private:
@@ -45,7 +44,6 @@ private:
 	bool m_bThemeLoaded;
 
 	bool m_bMenuSettings;
-	bool m_bMenuConfig;
 
 	bool m_bMenuAim;
 	bool m_bMenuVisuals;
