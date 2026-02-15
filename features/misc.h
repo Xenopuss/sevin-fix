@@ -47,7 +47,6 @@ private:
 	void AutoCeilClipping(struct usercmd_s *cmd);
 	void FakeLag(float frametime);
 	void AutoSelfSink();
-	void TertiaryAttackGlitch();
 
 	void ColorPulsator();
 

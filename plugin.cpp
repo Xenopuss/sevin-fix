@@ -16,7 +16,6 @@
 
 // Features
 #include "features/custom_vote_popup.h"
-#include "features/skybox.h"
 #include "features/visual.h"
 #include "features/chat_colors.h"
 #include "features/camhack.h"
@@ -162,32 +161,7 @@ void CSvenInternal::GameFrame(client_state_t state, double frametime, bool bPost
 
 			if (state == CLS_ACTIVE)
 			{
-				g_Skybox.Think();
 				g_ChatColors.Think();
-
-				static int wait_frames_TAGS = 0;
-
-				wait_frames_TAGS++;
-
-				if (wait_frames_TAGS >= 100)
-				{
-					if ( !IsTertiaryAttackGlitchInit_Server() )
-					{
-					#ifdef PLATFORM_WINDOWS
-						HMODULE hServerDLL = Sys_GetModuleHandle("server.dll");
-					#else
-						HMODULE hServerDLL = Sys_GetModuleHandle("server.so");
-					#endif
-
-						if (hServerDLL)
-						{
-							extern void InitTertiaryAttackGlitch_Server(HMODULE hServerDLL);
-							InitTertiaryAttackGlitch_Server(hServerDLL);
-						}
-					}
-
-					wait_frames_TAGS = 0;
-				}
 			}
 			else
 			{
@@ -222,7 +196,6 @@ void CSvenInternal::OnBeginLoading(void)
 	// Reset ALL feature states to prevent crashes during map change
 	g_Visual.OnVideoInit();
 	g_CamHack.OnVideoInit();
-	g_Skybox.OnVideoInit();
 	g_FirstPersonRoaming.OnVideoInit();
 	
 	// Reset misc static variables

@@ -6,9 +6,6 @@
 
 #include "config.h"
 
-#include "features/skybox.h"
-#include "features/models_manager.h"
-
 #include "utils/menu_styles.h"
 
 extern void WindowStyle();
@@ -127,21 +124,6 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("Transparent_G", cvars.transparent_color[1]);
 			ConfigManager()->ImportParam("Transparent_B", cvars.transparent_color[2]);
 			ConfigManager()->ImportParam("TransparentBlendMode", cvars.transparent_blend_mode);
-
-			ConfigManager()->EndSectionImport();
-		}
-
-		if (ConfigManager()->BeginSectionImport("MODELSMANAGER"))
-		{
-			cvars.replace_model = NULL;
-
-			ConfigManager()->ImportParam("ReplacePlayersModels", cvars.replace_players_models);
-			ConfigManager()->ImportParam("ReplaceModelOnSelf", cvars.replace_model_on_self);
-			ConfigManager()->ImportParam("ReplaceModel", cvars.replace_model);
-
-			ConfigManager()->ImportParam("ReplacePlayersModelsWithRandoms", cvars.replace_players_models_with_randoms);
-			ConfigManager()->ImportParam("ReplaceSpecifiedPlayersModels", cvars.replace_specified_players_models);
-			ConfigManager()->ImportParam("IgnoreSpecifiedPlayersModels", cvars.dont_replace_specified_players_models);
 
 			ConfigManager()->EndSectionImport();
 		}
@@ -312,7 +294,6 @@ bool CConfig::Load()
 		if (ConfigManager()->BeginSectionImport("FAKELAG"))
 		{
 			ConfigManager()->ImportParam("Enable", cvars.fakelag);
-			ConfigManager()->ImportParam("AdaptiveInterp", cvars.fakelag_adaptive_ex_interp);
 			ConfigManager()->ImportParam("Type", cvars.fakelag_type);
 			ConfigManager()->ImportParam("Move", cvars.fakelag_move);
 			ConfigManager()->ImportParam("Limit", cvars.fakelag_limit);
@@ -342,7 +323,6 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("DoubleDuck", cvars.doubleduck);
 			ConfigManager()->ImportParam("FastRun", cvars.fastrun);
 			ConfigManager()->ImportParam("QuakeGuns", cvars.quake_guns);
-			ConfigManager()->ImportParam("TertiaryAttackGlitch", cvars.tertiary_attack_glitch);
 			ConfigManager()->ImportParam("SaveSoundcache", cvars.save_soundcache);
 			ConfigManager()->ImportParam("RotateDeadBody", cvars.rotate_dead_body);
 			ConfigManager()->ImportParam("AutoCeilClipping", cvars.auto_ceil_clipping);
@@ -397,13 +377,6 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("Fog_R", cvars.fog_color[0]);
 			ConfigManager()->ImportParam("Fog_G", cvars.fog_color[1]);
 			ConfigManager()->ImportParam("Fog_B", cvars.fog_color[2]);
-
-			ConfigManager()->EndSectionImport();
-		}
-
-		if (ConfigManager()->BeginSectionImport("SKYBOX"))
-		{
-			ConfigManager()->ImportParam("Type", cvars.skybox);
 
 			ConfigManager()->EndSectionImport();
 		}
@@ -482,10 +455,6 @@ bool CConfig::Load()
 		//}
 
 		ConfigManager()->EndImport();
-
-		// Callbacks
-		g_ModelsManager.OnConfigLoad();
-		g_Skybox.OnConfigLoad();
 
 		return true;
 	}
@@ -587,19 +556,6 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("Transparent_G", cvars.transparent_color[1]);
 			ConfigManager()->ExportParam("Transparent_B", cvars.transparent_color[2]);
 			ConfigManager()->ExportParam("TransparentBlendMode", cvars.transparent_blend_mode);
-
-			ConfigManager()->EndSectionExport();
-		}
-	
-		if (ConfigManager()->BeginSectionExport("MODELSMANAGER"))
-		{
-			ConfigManager()->ExportParam("ReplacePlayersModels", cvars.replace_players_models);
-			ConfigManager()->ExportParam("ReplaceModelOnSelf", cvars.replace_model_on_self);
-			ConfigManager()->ExportParam("ReplaceModel", g_ReplacePlayerModel.c_str());
-
-			ConfigManager()->ExportParam("ReplacePlayersModelsWithRandoms", cvars.replace_players_models_with_randoms);
-			ConfigManager()->ExportParam("ReplaceSpecifiedPlayersModels", cvars.replace_specified_players_models);
-			ConfigManager()->ExportParam("IgnoreSpecifiedPlayersModels", cvars.dont_replace_specified_players_models);
 
 			ConfigManager()->EndSectionExport();
 		}
@@ -770,7 +726,6 @@ void CConfig::Save()
 		if (ConfigManager()->BeginSectionExport("FAKELAG"))
 		{
 			ConfigManager()->ExportParam("Enable", cvars.fakelag);
-			ConfigManager()->ExportParam("AdaptiveInterp", cvars.fakelag_adaptive_ex_interp);
 			ConfigManager()->ExportParam("Type", cvars.fakelag_type);
 			ConfigManager()->ExportParam("Move", cvars.fakelag_move);
 			ConfigManager()->ExportParam("Limit", cvars.fakelag_limit);
@@ -800,7 +755,6 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("DoubleDuck", cvars.doubleduck);
 			ConfigManager()->ExportParam("FastRun", cvars.fastrun);
 			ConfigManager()->ExportParam("QuakeGuns", cvars.quake_guns);
-			ConfigManager()->ExportParam("TertiaryAttackGlitch", cvars.tertiary_attack_glitch);
 			ConfigManager()->ExportParam("SaveSoundcache", cvars.save_soundcache);
 			ConfigManager()->ExportParam("RotateDeadBody", cvars.rotate_dead_body);
 			ConfigManager()->ExportParam("AutoCeilClipping", cvars.auto_ceil_clipping);
@@ -857,13 +811,6 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("Fog_R", cvars.fog_color[0]);
 			ConfigManager()->ExportParam("Fog_G", cvars.fog_color[1]);
 			ConfigManager()->ExportParam("Fog_B", cvars.fog_color[2]);
-
-			ConfigManager()->EndSectionExport();
-		}
-
-		if (ConfigManager()->BeginSectionExport("SKYBOX"))
-		{
-			ConfigManager()->ExportParam("Type", cvars.skybox);
 
 			ConfigManager()->EndSectionExport();
 		}

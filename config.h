@@ -136,18 +136,6 @@ public:
 		int transparent_blend_mode = 0;
 
 		//-----------------------------------------------------------------------------
-		// Models Manager
-		//-----------------------------------------------------------------------------
-		
-		const char *replace_model = NULL;
-
-		bool replace_players_models = false;
-		bool replace_model_on_self = false;
-		bool replace_players_models_with_randoms = false;
-		bool replace_specified_players_models = false;
-		bool dont_replace_specified_players_models = false;
-
-		//-----------------------------------------------------------------------------
 		// Crosshair
 		//-----------------------------------------------------------------------------
 
@@ -244,7 +232,6 @@ public:
 		//-----------------------------------------------------------------------------
 
 		bool fakelag = false;
-		bool fakelag_adaptive_ex_interp = false;
 		int fakelag_limit = 64; // enum
 		int fakelag_move = 0; // enum
 		int fakelag_type = 0; // enum
@@ -272,7 +259,6 @@ public:
 		bool doubleduck = false;
 		bool fastrun = false;
 		bool quake_guns = false;
-		bool tertiary_attack_glitch = false;
 		bool save_soundcache = false;
 		bool rotate_dead_body = false;
 		bool remove_fov_cap = false;
@@ -329,12 +315,6 @@ public:
 		float fog_end = 1000.0f;
 		float fog_density = 0.25f;
 		float fog_color[3] = { 1.0f, 1.0f, 1.0f };
-
-		//-----------------------------------------------------------------------------
-		// Skybox
-		//-----------------------------------------------------------------------------
-
-		int skybox = 0;
 
 		//-----------------------------------------------------------------------------
 		// Chat colors

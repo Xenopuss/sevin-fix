@@ -17,11 +17,8 @@ namespace Patterns
 		EXTERN_PATTERN(Netchan_Transmit);
 
 		EXTERN_PATTERN(V_RenderView);
-		EXTERN_PATTERN(R_SetupFrame);
-		EXTERN_PATTERN(R_LoadSkyboxInt);
 
 		EXTERN_PATTERN(CRC_MapFile);
-		EXTERN_PATTERN(UserInfo_Offset);
 	}
 
 	namespace Client

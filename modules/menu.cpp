@@ -9,7 +9,6 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_opengl2.h"
 
-#include "../features/models_manager.h"
 #include "../utils/menu_styles.h"
 #include "../config.h"
 
@@ -964,155 +963,10 @@ void CMenuModule::DrawWindowVisuals()
 
 					ImGui::EndTabItem();
 				}
-				
-				// Models Manager
-				if (ImGui::BeginTabItem("Models Manager"))
-				{
-					ImGui::Spacing();
-					ImGui::Spacing();
 
-					ImGui::Text("Replace Models of All Players");
-
-					ImGui::Spacing();
-
-					ImGui::Separator();
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-				if (ImGui::Checkbox("Replace Models of All Players", &g_Config.cvars.replace_players_models))
-					{
-						g_Config.MarkDirty();
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetPlayersInfo();
-					}
-					if (ImGui::Checkbox("Replace Model on Self", &g_Config.cvars.replace_model_on_self))
-					{
-						g_Config.MarkDirty();
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetLocalPlayerInfo();
-					}
-
-					ImGui::Spacing();
-
-					ImGui::InputText("Model to Replace", g_szReplacePlayerModelBuffer, IM_ARRAYSIZE(g_szReplacePlayerModelBuffer));
-
-					if (ImGui::Button("Change Model##mm"))
-					{
-						g_ReplacePlayerModel = g_szReplacePlayerModelBuffer;
-
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetPlayersInfo();
-					}
-					
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-				if (ImGui::Checkbox("Replace Models of All Players with Random Ones", &g_Config.cvars.replace_players_models_with_randoms))
-					{
-						g_Config.MarkDirty();
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetPlayersInfo();
-					}
-
-					ImGui::Spacing();
-					
-					if (ImGui::Button("Reload List of Random Models"))
-					{
-						g_ModelsManager.ReloadRandomModels();
-					}
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-					
-					ImGui::Text("Replace Models of Specified Players");
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Separator();
-					
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-				if (ImGui::Checkbox("Replace Models of Specified Players", &g_Config.cvars.replace_specified_players_models))
-					{
-						g_Config.MarkDirty();
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetPlayersInfo();
-					}
-					if (ImGui::Checkbox("Don't Replace Models of Specified Players", &g_Config.cvars.dont_replace_specified_players_models))
-					{
-						g_Config.MarkDirty();
-						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
-							g_ModelsManager.ResetPlayersInfo();
-					}
-
-					ImGui::Spacing();
-					
-					if (ImGui::Button("Reload List of Players##mm"))
-					{
-						g_ModelsManager.ReloadTargetPlayers();
-					}
-
-					ImGui::Spacing();
-
-					if (ImGui::Button("Reload List of Ignored Players##mm"))
-					{
-						g_ModelsManager.ReloadIgnoredPlayers();
-					}
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Separator();
-
-					ImGui::Text("");
-					ImGui::Spacing();
-
-					ImGui::EndTabItem();
-				}
-
-				// Misc (Skybox, Fog)
+				// Misc (Fog)
 				if (ImGui::BeginTabItem("Misc."))
 				{
-					extern void ConCommand_ChangeSkybox(const CCommand &args);
-					extern void ConCommand_ResetSkybox();
-
-					extern const char* g_szSkyboxes[];
-					extern int g_iSkyboxesSize;
-					extern bool g_bMenuChangeSkybox;
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Text("Skybox Changer");
-
-					ImGui::Spacing();
-
-					ImGui::Separator();
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-				if (ImGui::Combo("Skybox Name", &g_Config.cvars.skybox, g_szSkyboxes, g_iSkyboxesSize))
-					{
-						g_Config.MarkDirty();
-						g_bMenuChangeSkybox = true;
-
-						ConCommand_ChangeSkybox(s_DummyCommand);
-
-						g_bMenuChangeSkybox = false;
-					}
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					if (ImGui::Button("Reset Skybox"))
-					{
-						ConCommand_ResetSkybox();
-					}
-						
 					ImGui::Spacing();
 					ImGui::Spacing();
 
@@ -1619,8 +1473,7 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					AutoSaveCheckbox("Auto Ceil-Clipping", &g_Config.cvars.auto_ceil_clipping); ImGui::SameLine();
-					AutoSaveCheckbox("Tertiary Attack Glitch", &g_Config.cvars.tertiary_attack_glitch);
+					AutoSaveCheckbox("Auto Ceil-Clipping", &g_Config.cvars.auto_ceil_clipping);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1826,8 +1679,6 @@ void CMenuModule::DrawWindowUtility()
 
 					ImGui::Spacing();
 					ImGui::Spacing();
-
-					AutoSaveCheckbox("Adaptive Ex Interp", &g_Config.cvars.fakelag_adaptive_ex_interp);
 
 					ImGui::Spacing();
 					ImGui::Spacing();

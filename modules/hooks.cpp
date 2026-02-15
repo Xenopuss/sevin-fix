@@ -32,10 +32,8 @@
 #include "../features/firstperson_roaming.h"
 #include "../features/message_spammer.h"
 #include "../features/keyspam.h"
-#include "../features/skybox.h"
 #include "../features/dynamic_glow.h"
 #include "../features/chat_colors.h"
-#include "../features/models_manager.h"
 
 //-----------------------------------------------------------------------------
 // Declare hooks
@@ -53,7 +51,6 @@ DECLARE_HOOK(void, APIENTRY, glEnd);
 DECLARE_HOOK(void, APIENTRY, glColor4f, GLfloat, GLfloat, GLfloat, GLfloat);
 
 DECLARE_HOOK(void, __cdecl, V_RenderView);
-DECLARE_HOOK(void, __cdecl, R_SetupFrame);
 
 DECLARE_HOOK(int, __cdecl, CRC_MapFile, uint32 *ulCRC, char *pszMapName);
 
@@ -115,7 +112,6 @@ private:
 	void *m_pfnglEnd;
 	void *m_pfnglColor4f;
 	void *m_pfnV_RenderView;
-	void *m_pfnR_SetupFrame;
 	void *m_pfnCRC_MapFile;
 
 	DetourHandle_t m_hIN_Move;
@@ -127,7 +123,6 @@ private:
 	DetourHandle_t m_hglEnd;
 	DetourHandle_t m_hglColor4f;
 	DetourHandle_t m_hV_RenderView;
-	DetourHandle_t m_hR_SetupFrame;
 	DetourHandle_t m_hCRC_MapFile;
 
 	DetourHandle_t m_hStudioRenderModel;
@@ -381,28 +376,6 @@ DECLARE_FUNC(void, __cdecl, HOOKED_SPR_Set, VHSPRITE hPic, int r, int g, int b)
 	ORIG_SPR_Set(hPic, r, g, b);
 }
 
-DECLARE_FUNC(void, __cdecl, HOOKED_R_SetupFrame)
-{
-	ORIG_R_SetupFrame();
-
-	if (s_iWaterLevel == WL_EYES)
-	{
-		float rgColor[3] = { 0.f, 0.f, 0.f };
-
-		if (g_Config.cvars.remove_water_fog)
-		{
-			glDisable(GL_FOG);
-
-			if (g_Config.cvars.fog)
-				g_pTriangleAPI->Fog(rgColor, g_Config.cvars.fog_start, g_Config.cvars.fog_end, 0);
-		}
-		else if (g_Config.cvars.fog)
-		{
-			g_pTriangleAPI->Fog(rgColor, g_Config.cvars.fog_start, g_Config.cvars.fog_end, 0);
-		}
-	}
-}
-
 DECLARE_FUNC(void, __cdecl, HOOKED_V_RenderView)
 {
 	GLfloat glColor[] =
@@ -486,13 +459,11 @@ HOOK_RESULT CClientHooks::HUD_VidInit(void)
 {
 	g_Visual.OnVideoInit();
 	g_Drawing.OnVideoInit();
-	g_Skybox.OnVideoInit();
 	g_VotePopup.OnVideoInit();
 	g_ChatColors.OnVideoInit();
 	g_CamHack.OnVideoInit();
 	g_AntiAFK.OnVideoInit();
 	g_Misc.OnVideoInit();
-	g_ModelsManager.OnVideoInit();
 	g_FirstPersonRoaming.OnVideoInit();
 	
 	// Reset global hook variables to prevent state corruption during map change
@@ -913,14 +884,12 @@ CHooksModule::CHooksModule()
 	m_pfnglEnd = NULL;
 	m_pfnglColor4f = NULL;
 	m_pfnV_RenderView = NULL;
-	m_pfnR_SetupFrame = NULL;
 
 	m_hNetchan_CanPacket = 0;
 	m_hglBegin = 0;
 	m_hglEnd = 0;
 	m_hglColor4f = 0;
 	m_hV_RenderView = 0;
-	m_hR_SetupFrame = 0;
 }
 
 bool CHooksModule::Load()
@@ -970,14 +939,7 @@ bool CHooksModule::Load()
 		Warning("Couldn't find function \"V_RenderView\"\n");
 		return false;
 	}
-	
-	m_pfnR_SetupFrame = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Hardware, Patterns::Hardware::R_SetupFrame );
 
-	if ( !m_pfnR_SetupFrame )
-	{
-		Warning("Couldn't find function \"R_SetupFrame\" - fog/wallhack features will be disabled\n");
-	}
-	
 	m_pfnCRC_MapFile = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Hardware, Patterns::Hardware::CRC_MapFile );
 
 	if ( !m_pfnCRC_MapFile )
@@ -1016,8 +978,6 @@ void CHooksModule::PostLoad()
 	m_hglEnd = DetoursAPI()->DetourFunction( m_pfnglEnd, HOOKED_glEnd, GET_FUNC_PTR(ORIG_glEnd) );
 	m_hglColor4f = DetoursAPI()->DetourFunction( m_pfnglColor4f, HOOKED_glColor4f, GET_FUNC_PTR(ORIG_glColor4f) );
 	m_hV_RenderView = DetoursAPI()->DetourFunction( m_pfnV_RenderView, HOOKED_V_RenderView, GET_FUNC_PTR(ORIG_V_RenderView) );
-	if ( m_pfnR_SetupFrame )
-		m_hR_SetupFrame = DetoursAPI()->DetourFunction( m_pfnR_SetupFrame, HOOKED_R_SetupFrame, GET_FUNC_PTR(ORIG_R_SetupFrame) );
 	m_hCRC_MapFile = DetoursAPI()->DetourFunction( m_pfnCRC_MapFile, HOOKED_CRC_MapFile, GET_FUNC_PTR(ORIG_CRC_MapFile) );
 
 	m_hStudioRenderModel = DetoursAPI()->DetourVirtualFunction( g_pStudioRenderer, 20, HOOKED_StudioRenderModel, GET_FUNC_PTR(ORIG_StudioRenderModel) );
@@ -1039,8 +999,6 @@ void CHooksModule::Unload()
 	DetoursAPI()->RemoveDetour( m_hglEnd );
 	DetoursAPI()->RemoveDetour( m_hglColor4f );
 	DetoursAPI()->RemoveDetour( m_hV_RenderView );
-	if ( m_pfnR_SetupFrame )
-		DetoursAPI()->RemoveDetour( m_hR_SetupFrame );
 	DetoursAPI()->RemoveDetour( m_hCRC_MapFile );
 
 	DetoursAPI()->RemoveDetour( m_hStudioRenderModel );

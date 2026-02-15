@@ -23,7 +23,6 @@
 #include <cmath>
 
 #include "../features/strafer.h"
-#include "../modules/patches.h"
 #include "../game/utils.h"
 
 #include "../config.h"
@@ -50,7 +49,6 @@ DECLARE_CLASS_HOOK(void, CHud__Think, CHud *);
 
 CMisc g_Misc;
 
-cvar_t *ex_interp = NULL;
 cvar_t *default_fov = NULL;
 
 Vector g_vecSpinAngles(0.f, 0.f, 0.f);
@@ -244,12 +242,6 @@ CON_COMMAND_EXTERN_NO_WRAPPER(sc_rotate_dead_body, ConCommand_RotateDeadBody, "T
 {
 	Msg(g_Config.cvars.rotate_dead_body ? "Rotate Dead Body disabled\n" : "Rotate Dead Body enabled\n");
 	g_Config.cvars.rotate_dead_body = !g_Config.cvars.rotate_dead_body;
-}
-
-CON_COMMAND_EXTERN_NO_WRAPPER(sc_tertiary_attack_glitch, ConCommand_TertiaryAttackGlitch, "Toggle tertiary attack glitch")
-{
-	Msg(g_Config.cvars.tertiary_attack_glitch ? "Tertiary Attack Glitch disabled\n" : "Tertiary Attack Glitch enabled\n");
-	g_Config.cvars.tertiary_attack_glitch = !g_Config.cvars.tertiary_attack_glitch;
 }
 
 CON_COMMAND_EXTERN_NO_WRAPPER(sc_quake_guns, ConCommand_QuakeGuns, "Toggle Quake guns")
@@ -629,7 +621,6 @@ void CMisc::CreateMove(float frametime, struct usercmd_s *cmd, int active)
 
 	FakeLag(frametime);
 	ColorPulsator();
-	TertiaryAttackGlitch();
 
 	if ( g_Config.cvars.rotate_dead_body && Client()->IsDying() )
 	{
@@ -1405,23 +1396,6 @@ void CMisc::AutoCeilClipping(struct usercmd_s *cmd)
 
 void CMisc::FakeLag(float frametime)
 {
-	static bool bSetInterpOnce = false;
-
-	if ( g_Config.cvars.fakelag_adaptive_ex_interp )
-	{
-		if (ex_interp->value != 0.01f)
-			ex_interp->value = 0.01f;
-
-		bSetInterpOnce = true;
-	}
-	else if ( bSetInterpOnce )
-	{
-		if (ex_interp->value == 0.01f)
-			ex_interp->value = 0.1f;
-
-		bSetInterpOnce = false;
-	}
-
 	if ( g_Config.cvars.fakelag )
 	{
 		bool bFakeLag = true;
@@ -1534,40 +1508,6 @@ void CMisc::AutoSelfSink() // improve it tf
 	else if (s_nSinkState == 2 && Client()->GetViewOffset().z == VEC_DUCK_VIEW.z)
 	{
 		ConCommand_AutoSelfSink();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Tertiary Attack Glitch
-//-----------------------------------------------------------------------------
-
-void CMisc::TertiaryAttackGlitch()
-{
-	if (g_Config.cvars.tertiary_attack_glitch)
-	{
-		if (!IsTertiaryAttackGlitchPatched())
-		{
-			EnableTertiaryAttackGlitch();
-		}
-	}
-	else if (IsTertiaryAttackGlitchPatched())
-	{
-		DisableTertiaryAttackGlitch();
-	}
-
-	if (IsTertiaryAttackGlitchInit_Server())
-	{
-		if (g_Config.cvars.tertiary_attack_glitch)
-		{
-			if (!IsTertiaryAttackGlitchPatched_Server())
-			{
-				EnableTertiaryAttackGlitch_Server();
-			}
-		}
-		else if (IsTertiaryAttackGlitchPatched_Server())
-		{
-			DisableTertiaryAttackGlitch_Server();
-		}
 	}
 }
 
@@ -1722,14 +1662,7 @@ CMisc::~CMisc()
 
 bool CMisc::Load()
 {
-	ex_interp = CVar()->FindCvar("ex_interp");
 	default_fov = CVar()->FindCvar("default_fov");
-
-	if ( !ex_interp )
-	{
-		Warning("Can't find cvar ex_interp\n");
-		return false;
-	}
 
 	if ( !default_fov )
 	{
