@@ -403,6 +403,16 @@ public:
 
 	std::string current_config;
 	std::vector<std::string> configs;
+
+private:
+	bool m_bConfigDirty = false;
+	float m_flLastChangeTime = 0.0f;
+
+public:
+	static constexpr float SAVE_DEBOUNCE_SECONDS = 0.5f;
+
+	void MarkDirty();
+	void ThinkSave(float currentTime);
 };
 
 //-----------------------------------------------------------------------------

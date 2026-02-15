@@ -37,6 +37,52 @@ bool g_bMenuClosed = false;
 CMenuModule g_MenuModule;
 
 //-----------------------------------------------------------------------------
+// Auto-save wrapper functions
+//-----------------------------------------------------------------------------
+
+static void AutoSaveCheckbox(const char* label, bool* v)
+{
+	if (ImGui::Checkbox(label, v))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveSliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", ImGuiSliderFlags flags = 0)
+{
+	if (ImGui::SliderFloat(label, v, v_min, v_max, format, flags))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveSliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%d", ImGuiSliderFlags flags = 0)
+{
+	if (ImGui::SliderInt(label, v, v_min, v_max, format, flags))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveCombo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1)
+{
+	if (ImGui::Combo(label, current_item, items_separated_by_zeros, popup_max_height_in_items))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveComboArray(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1)
+{
+	if (ImGui::Combo(label, current_item, items, items_count, height_in_items))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0)
+{
+	if (ImGui::ColorEdit3(label, col, flags))
+		g_Config.MarkDirty();
+}
+
+static void AutoSaveColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0)
+{
+	if (ImGui::ColorEdit4(label, col, flags))
+		g_Config.MarkDirty();
+}
+
+//-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
 
@@ -218,9 +264,9 @@ void CMenuModule::DrawWindowAim()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("No Recoil", &g_Config.cvars.no_recoil);
+				AutoSaveCheckbox("No Recoil", &g_Config.cvars.no_recoil);
 					
-					ImGui::Checkbox("No Recoil [Visual]", &g_Config.cvars.no_recoil_visual);
+					AutoSaveCheckbox("No Recoil [Visual]", &g_Config.cvars.no_recoil_visual);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -270,9 +316,9 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("No Shake", &g_Config.cvars.no_shake); ImGui::SameLine();
-					ImGui::Checkbox("No Fade", &g_Config.cvars.no_fade); ImGui::SameLine();
-					ImGui::Checkbox("Remove FOV Cap", &g_Config.cvars.remove_fov_cap);
+				AutoSaveCheckbox("No Shake", &g_Config.cvars.no_shake); ImGui::SameLine();
+					AutoSaveCheckbox("No Fade", &g_Config.cvars.no_fade); ImGui::SameLine();
+					AutoSaveCheckbox("Remove FOV Cap", &g_Config.cvars.remove_fov_cap);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -294,7 +340,7 @@ void CMenuModule::DrawWindowVisuals()
 						"6 - Draw Players Hitboxes"
 					};
 
-					ImGui::Combo(" ", &g_Config.cvars.draw_entities, draw_entities_items, IM_ARRAYSIZE(draw_entities_items));
+					AutoSaveComboArray(" ", &g_Config.cvars.draw_entities, draw_entities_items, IM_ARRAYSIZE(draw_entities_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -305,16 +351,16 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Override Lightmap", &g_Config.cvars.lightmap_override);
+					AutoSaveCheckbox("Override Lightmap", &g_Config.cvars.lightmap_override);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Lightmap Brightness", &g_Config.cvars.lightmap_brightness, 0.0f, 1.0f);
+					AutoSaveSliderFloat("Lightmap Brightness", &g_Config.cvars.lightmap_brightness, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Lightmap Color", g_Config.cvars.lightmap_color);
+					AutoSaveColorEdit3("Lightmap Color", g_Config.cvars.lightmap_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -327,7 +373,7 @@ void CMenuModule::DrawWindowVisuals()
 
 					static const char* no_weap_anim_items[] = { "0 - Off", "1 - All Animations", "2 - Take Animations" };
 
-					ImGui::Combo("##no_weap_anims", &g_Config.cvars.no_weapon_anim, no_weap_anim_items, IM_ARRAYSIZE(no_weap_anim_items));
+					AutoSaveComboArray("##no_weap_anims", &g_Config.cvars.no_weapon_anim, no_weap_anim_items, IM_ARRAYSIZE(no_weap_anim_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -355,36 +401,36 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable ESP", &g_Config.cvars.esp);
+					AutoSaveCheckbox("Enable ESP", &g_Config.cvars.esp);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Outline Box", &g_Config.cvars.esp_box_outline); ImGui::SameLine();
-					ImGui::Checkbox("Show Items", &g_Config.cvars.esp_show_items); ImGui::SameLine();
-					ImGui::Checkbox("Ignore Unknown Entities", &g_Config.cvars.esp_ignore_unknown_ents);
+				AutoSaveCheckbox("Outline Box", &g_Config.cvars.esp_box_outline); ImGui::SameLine();
+					AutoSaveCheckbox("Show Items", &g_Config.cvars.esp_show_items); ImGui::SameLine();
+					AutoSaveCheckbox("Ignore Unknown Entities", &g_Config.cvars.esp_ignore_unknown_ents);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Draw Entity Index", &g_Config.cvars.esp_box_index);
-					ImGui::Checkbox("Draw Distance", &g_Config.cvars.esp_box_distance);
+				AutoSaveCheckbox("Draw Entity Index", &g_Config.cvars.esp_box_index);
+					AutoSaveCheckbox("Draw Distance", &g_Config.cvars.esp_box_distance);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Show Only Visible Players", &g_Config.cvars.esp_show_visible_players);
-					ImGui::Checkbox("Show Friends", &g_Config.cvars.esp_show_friends);
-					ImGui::Checkbox("Draw Player Health", &g_Config.cvars.esp_box_player_health);
-					ImGui::Checkbox("Draw Player Armor", &g_Config.cvars.esp_box_player_armor);
-					ImGui::Checkbox("Draw Nicknames", &g_Config.cvars.esp_box_player_name);
+				AutoSaveCheckbox("Show Only Visible Players", &g_Config.cvars.esp_show_visible_players);
+					AutoSaveCheckbox("Show Friends", &g_Config.cvars.esp_show_friends);
+					AutoSaveCheckbox("Draw Player Health", &g_Config.cvars.esp_box_player_health);
+					AutoSaveCheckbox("Draw Player Armor", &g_Config.cvars.esp_box_player_armor);
+					AutoSaveCheckbox("Draw Nicknames", &g_Config.cvars.esp_box_player_name);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Draw Entity Name", &g_Config.cvars.esp_box_entity_name);
-					ImGui::Checkbox("Draw Skeleton", &g_Config.cvars.esp_skeleton); ImGui::SameLine();
-					ImGui::Checkbox("Draw Names of Bones", &g_Config.cvars.esp_bones_name);
+				AutoSaveCheckbox("Draw Entity Name", &g_Config.cvars.esp_box_entity_name);
+					AutoSaveCheckbox("Draw Skeleton", &g_Config.cvars.esp_skeleton); ImGui::SameLine();
+					AutoSaveCheckbox("Draw Names of Bones", &g_Config.cvars.esp_bones_name);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -395,27 +441,27 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Friend Player Color", g_Config.cvars.esp_friend_player_color);
+				AutoSaveColorEdit3("Friend Player Color", g_Config.cvars.esp_friend_player_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Enemy Player Color", g_Config.cvars.esp_enemy_player_color);
+					AutoSaveColorEdit3("Enemy Player Color", g_Config.cvars.esp_enemy_player_color);
 
 					ImGui::Spacing();
 					
-					ImGui::ColorEdit3("Friend Color", g_Config.cvars.esp_friend_color);
+					AutoSaveColorEdit3("Friend Color", g_Config.cvars.esp_friend_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Enemy Color", g_Config.cvars.esp_enemy_color);
+					AutoSaveColorEdit3("Enemy Color", g_Config.cvars.esp_enemy_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Neutral Color", g_Config.cvars.esp_neutral_color);
+					AutoSaveColorEdit3("Neutral Color", g_Config.cvars.esp_neutral_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Item Color", g_Config.cvars.esp_item_color);
+					AutoSaveColorEdit3("Item Color", g_Config.cvars.esp_item_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -426,9 +472,10 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					static const char* esp_style[] = { "0 - Default", "1 - SAMP", "2 - Left 4 Dead" };
+				static const char* esp_style[] = { "0 - Default", "1 - SAMP", "2 - Left 4 Dead" };
 					if (ImGui::Combo("Player Style##style", &g_Config.cvars.esp_player_style, esp_style, IM_ARRAYSIZE(esp_style)))
 					{
+						g_Config.MarkDirty();
 						if (g_Config.cvars.esp_player_style == 0)
 						{
 							g_Config.cvars.esp_friend_player_color[0] = 0.f;
@@ -463,39 +510,39 @@ void CMenuModule::DrawWindowVisuals()
 
 					ImGui::Spacing();
 					
-					ImGui::Combo("Entity Style##style2", &g_Config.cvars.esp_entity_style, esp_style, IM_ARRAYSIZE(esp_style));
+					AutoSaveComboArray("Entity Style##style2", &g_Config.cvars.esp_entity_style, esp_style, IM_ARRAYSIZE(esp_style));
 
 					ImGui::Spacing();
 					
-					static const char* esp_process_items[] = { "0 - Everyone", "1 - Entities", "2 - Players" };
-					ImGui::Combo("Targets##esp", &g_Config.cvars.esp_targets, esp_process_items, IM_ARRAYSIZE(esp_process_items));
+				static const char* esp_process_items[] = { "0 - Everyone", "1 - Entities", "2 - Players" };
+					AutoSaveComboArray("Targets##esp", &g_Config.cvars.esp_targets, esp_process_items, IM_ARRAYSIZE(esp_process_items));
 
 					ImGui::Spacing();
 					
-					ImGui::Combo("Box Targets##esp", &g_Config.cvars.esp_box_targets, esp_process_items, IM_ARRAYSIZE(esp_process_items));
+					AutoSaveComboArray("Box Targets##esp", &g_Config.cvars.esp_box_targets, esp_process_items, IM_ARRAYSIZE(esp_process_items));
 
 					ImGui::Spacing();
 					
-					ImGui::Combo("Draw Distance Mode##esp", &g_Config.cvars.esp_distance_mode, esp_process_items, IM_ARRAYSIZE(esp_process_items));
+					AutoSaveComboArray("Draw Distance Mode##esp", &g_Config.cvars.esp_distance_mode, esp_process_items, IM_ARRAYSIZE(esp_process_items));
 
 					ImGui::Spacing();
 
-					ImGui::Combo("Draw Skeleton Mode##esp", &g_Config.cvars.esp_skeleton_type, esp_process_items, IM_ARRAYSIZE(esp_process_items));
+					AutoSaveComboArray("Draw Skeleton Mode##esp", &g_Config.cvars.esp_skeleton_type, esp_process_items, IM_ARRAYSIZE(esp_process_items));
 
 					ImGui::Spacing();
 
 					static const char* esp_box_items[] = { "0 - Off", "1 - Default", "2 - Coal", "3 - Corner" };
-					ImGui::Combo("Box Type##esp", &g_Config.cvars.esp_box, esp_box_items, IM_ARRAYSIZE(esp_box_items));
+					AutoSaveComboArray("Box Type##esp", &g_Config.cvars.esp_box, esp_box_items, IM_ARRAYSIZE(esp_box_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Distance##esp", &g_Config.cvars.esp_distance, 1.0f, 8192.0f);
+				AutoSaveSliderFloat("Distance##esp", &g_Config.cvars.esp_distance, 1.0f, 8192.0f);
 						
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Box Fill Alpha##esp", &g_Config.cvars.esp_box_fill, 0, 255);
+					AutoSaveSliderInt("Box Fill Alpha##esp", &g_Config.cvars.esp_box_fill, 0, 255);
 
 					ImGui::Spacing();
 
@@ -522,7 +569,7 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Chams", &g_Config.cvars.chams);
+					AutoSaveCheckbox("Enable Chams", &g_Config.cvars.chams);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -533,23 +580,23 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					static const char* chams_items[] = { "0 - Disable", "1 - Flat", "2 - Texture", "3 - Material" };
-					ImGui::Checkbox("Chams Players Behind Wall", &g_Config.cvars.chams_players_wall);
+				static const char* chams_items[] = { "0 - Disable", "1 - Flat", "2 - Texture", "3 - Material" };
+					AutoSaveCheckbox("Chams Players Behind Wall", &g_Config.cvars.chams_players_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Chams Players", &g_Config.cvars.chams_players, 0, 3, chams_items[g_Config.cvars.chams_players]);
+					AutoSaveSliderInt("Chams Players", &g_Config.cvars.chams_players, 0, 3, chams_items[g_Config.cvars.chams_players]);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Players Color", g_Config.cvars.chams_players_color);
+					AutoSaveColorEdit3("Chams Players Color", g_Config.cvars.chams_players_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Players Wall Color", g_Config.cvars.chams_players_wall_color);
+					AutoSaveColorEdit3("Chams Players Wall Color", g_Config.cvars.chams_players_wall_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -560,22 +607,22 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Chams Entities Behind Wall", &g_Config.cvars.chams_entities_wall);
+				AutoSaveCheckbox("Chams Entities Behind Wall", &g_Config.cvars.chams_entities_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Chams Entities", &g_Config.cvars.chams_entities, 0, 3, chams_items[g_Config.cvars.chams_entities]);
+					AutoSaveSliderInt("Chams Entities", &g_Config.cvars.chams_entities, 0, 3, chams_items[g_Config.cvars.chams_entities]);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Entities Color", g_Config.cvars.chams_entities_color);
+					AutoSaveColorEdit3("Chams Entities Color", g_Config.cvars.chams_entities_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Entities Wall Color", g_Config.cvars.chams_entities_wall_color);
+					AutoSaveColorEdit3("Chams Entities Wall Color", g_Config.cvars.chams_entities_wall_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -586,22 +633,22 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Chams Items Behind Wall", &g_Config.cvars.chams_items_wall);
+				AutoSaveCheckbox("Chams Items Behind Wall", &g_Config.cvars.chams_items_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Chams Items", &g_Config.cvars.chams_items, 0, 3, chams_items[g_Config.cvars.chams_items]);
+					AutoSaveSliderInt("Chams Items", &g_Config.cvars.chams_items, 0, 3, chams_items[g_Config.cvars.chams_items]);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Items Color", g_Config.cvars.chams_items_color);
+					AutoSaveColorEdit3("Chams Items Color", g_Config.cvars.chams_items_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Chams Items Wall Color", g_Config.cvars.chams_items_wall_color);
+					AutoSaveColorEdit3("Chams Items Wall Color", g_Config.cvars.chams_items_wall_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -629,12 +676,12 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Glow", &g_Config.cvars.glow);
+					AutoSaveCheckbox("Enable Glow", &g_Config.cvars.glow);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Optimize Glow Behind Wall", &g_Config.cvars.glow_optimize);
+					AutoSaveCheckbox("Optimize Glow Behind Wall", &g_Config.cvars.glow_optimize);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -647,21 +694,21 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					static const char* glow_items[] = { "0 - Disable", "1 - Glow Outline", "2 - Glow Shell", "3 - Ghost" };
-					ImGui::Checkbox("Glow Players Behind Wall", &g_Config.cvars.glow_players_wall);
+				static const char* glow_items[] = { "0 - Disable", "1 - Glow Outline", "2 - Glow Shell", "3 - Ghost" };
+					AutoSaveCheckbox("Glow Players Behind Wall", &g_Config.cvars.glow_players_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Players", &g_Config.cvars.glow_players, 0, 3, glow_items[g_Config.cvars.glow_players]);
+					AutoSaveSliderInt("Glow Players", &g_Config.cvars.glow_players, 0, 3, glow_items[g_Config.cvars.glow_players]);
 
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Players Width", &g_Config.cvars.glow_players_width, 0, 30);
+					AutoSaveSliderInt("Glow Players Width", &g_Config.cvars.glow_players_width, 0, 30);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Glow Players Color", g_Config.cvars.glow_players_color);
+					AutoSaveColorEdit3("Glow Players Color", g_Config.cvars.glow_players_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -673,20 +720,20 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Glow Entities Behind Wall", &g_Config.cvars.glow_entities_wall);
+				AutoSaveCheckbox("Glow Entities Behind Wall", &g_Config.cvars.glow_entities_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Entities", &g_Config.cvars.glow_entities, 0, 3, glow_items[g_Config.cvars.glow_entities]);
+					AutoSaveSliderInt("Glow Entities", &g_Config.cvars.glow_entities, 0, 3, glow_items[g_Config.cvars.glow_entities]);
 
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Entities Width", &g_Config.cvars.glow_entities_width, 0, 30);
+					AutoSaveSliderInt("Glow Entities Width", &g_Config.cvars.glow_entities_width, 0, 30);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Glow Entities Color", g_Config.cvars.glow_entities_color);
+					AutoSaveColorEdit3("Glow Entities Color", g_Config.cvars.glow_entities_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -698,20 +745,20 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Glow Items Behind Wall", &g_Config.cvars.glow_items_wall);
+				AutoSaveCheckbox("Glow Items Behind Wall", &g_Config.cvars.glow_items_wall);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Items", &g_Config.cvars.glow_items, 0, 3, glow_items[g_Config.cvars.glow_items]);
+					AutoSaveSliderInt("Glow Items", &g_Config.cvars.glow_items, 0, 3, glow_items[g_Config.cvars.glow_items]);
 
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Glow Items Width", &g_Config.cvars.glow_items_width, 0, 30);
+					AutoSaveSliderInt("Glow Items Width", &g_Config.cvars.glow_items_width, 0, 30);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Glow Items Color", g_Config.cvars.glow_items_color);
+					AutoSaveColorEdit3("Glow Items Color", g_Config.cvars.glow_items_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -739,7 +786,7 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Dyn. Glow Attach To Targets", &g_Config.cvars.dyn_glow_attach);
+					AutoSaveCheckbox("Dyn. Glow Attach To Targets", &g_Config.cvars.dyn_glow_attach);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -750,21 +797,21 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Dyn. Glow Self", &g_Config.cvars.dyn_glow_self);
+				AutoSaveCheckbox("Dyn. Glow Self", &g_Config.cvars.dyn_glow_self);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Self Radius", &g_Config.cvars.dyn_glow_self_radius, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Self Radius", &g_Config.cvars.dyn_glow_self_radius, 0.f, 4096.f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Self Decay", &g_Config.cvars.dyn_glow_self_decay, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Self Decay", &g_Config.cvars.dyn_glow_self_decay, 0.f, 4096.f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Dyn. Glow Self Color", g_Config.cvars.dyn_glow_self_color);
+					AutoSaveColorEdit3("Dyn. Glow Self Color", g_Config.cvars.dyn_glow_self_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -775,21 +822,21 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Dyn. Glow Players", &g_Config.cvars.dyn_glow_players);
+				AutoSaveCheckbox("Dyn. Glow Players", &g_Config.cvars.dyn_glow_players);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Players Radius", &g_Config.cvars.dyn_glow_players_radius, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Players Radius", &g_Config.cvars.dyn_glow_players_radius, 0.f, 4096.f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Players Decay", &g_Config.cvars.dyn_glow_players_decay, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Players Decay", &g_Config.cvars.dyn_glow_players_decay, 0.f, 4096.f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Dyn. Glow Players Color", g_Config.cvars.dyn_glow_players_color);
+					AutoSaveColorEdit3("Dyn. Glow Players Color", g_Config.cvars.dyn_glow_players_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -800,21 +847,21 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Dyn. Glow Entities", &g_Config.cvars.dyn_glow_entities);
+				AutoSaveCheckbox("Dyn. Glow Entities", &g_Config.cvars.dyn_glow_entities);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Entities Radius", &g_Config.cvars.dyn_glow_entities_radius, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Entities Radius", &g_Config.cvars.dyn_glow_entities_radius, 0.f, 4096.f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Entities Decay", &g_Config.cvars.dyn_glow_entities_decay, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Entities Decay", &g_Config.cvars.dyn_glow_entities_decay, 0.f, 4096.f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Dyn. Glow Entities Color", g_Config.cvars.dyn_glow_entities_color);
+					AutoSaveColorEdit3("Dyn. Glow Entities Color", g_Config.cvars.dyn_glow_entities_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -825,21 +872,21 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Dyn. Glow Items", &g_Config.cvars.dyn_glow_items);
+				AutoSaveCheckbox("Dyn. Glow Items", &g_Config.cvars.dyn_glow_items);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Items Radius", &g_Config.cvars.dyn_glow_items_radius, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Items Radius", &g_Config.cvars.dyn_glow_items_radius, 0.f, 4096.f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Dyn. Glow Items Decay", &g_Config.cvars.dyn_glow_items_decay, 0.f, 4096.f);
+					AutoSaveSliderFloat("Dyn. Glow Items Decay", &g_Config.cvars.dyn_glow_items_decay, 0.f, 4096.f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Dyn. Glow Items Color", g_Config.cvars.dyn_glow_items_color);
+					AutoSaveColorEdit3("Dyn. Glow Items Color", g_Config.cvars.dyn_glow_items_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -867,26 +914,26 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Simple Wallhack", &g_Config.cvars.wallhack); ImGui::SameLine();
-					ImGui::Checkbox("Lambert Wallhack", &g_Config.cvars.wallhack_white_walls);
+				AutoSaveCheckbox("Simple Wallhack", &g_Config.cvars.wallhack); ImGui::SameLine();
+					AutoSaveCheckbox("Lambert Wallhack", &g_Config.cvars.wallhack_white_walls);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Wireframe World", &g_Config.cvars.wallhack_wireframe); ImGui::SameLine();
-					ImGui::Checkbox("Wireframe Models", &g_Config.cvars.wallhack_wireframe_models);
+					AutoSaveCheckbox("Wireframe World", &g_Config.cvars.wallhack_wireframe); ImGui::SameLine();
+					AutoSaveCheckbox("Wireframe Models", &g_Config.cvars.wallhack_wireframe_models);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Negative", &g_Config.cvars.wallhack_negative);
+					AutoSaveCheckbox("Negative", &g_Config.cvars.wallhack_negative);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Wireframe Line Width", &g_Config.cvars.wh_wireframe_width, 0.0f, 10.0f);
+					AutoSaveSliderFloat("Wireframe Line Width", &g_Config.cvars.wh_wireframe_width, 0.0f, 10.0f);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Wireframe Color", g_Config.cvars.wh_wireframe_color);
+					AutoSaveColorEdit3("Wireframe Color", g_Config.cvars.wh_wireframe_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -897,24 +944,24 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Text("Transparent Walls");
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Transparent Walls", &g_Config.cvars.wallhack_transparent);
+					AutoSaveCheckbox("Enable Transparent Walls", &g_Config.cvars.wallhack_transparent);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Alpha", &g_Config.cvars.transparent_alpha, 0.0f, 1.0f, "%.2f");
+					AutoSaveSliderFloat("Alpha", &g_Config.cvars.transparent_alpha, 0.0f, 1.0f, "%.2f");
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("World Only", &g_Config.cvars.transparent_world_only);
-					ImGui::Checkbox("Include Models", &g_Config.cvars.transparent_models);
+					AutoSaveCheckbox("World Only", &g_Config.cvars.transparent_world_only);
+					AutoSaveCheckbox("Include Models", &g_Config.cvars.transparent_models);
 
 					ImGui::Spacing();
 
-					ImGui::Combo("Blend Mode", &g_Config.cvars.transparent_blend_mode, "Standard\0Additive\0Multiplicative\0");
+					AutoSaveCombo("Blend Mode", &g_Config.cvars.transparent_blend_mode, "Standard\0Additive\0Multiplicative\0");
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Tint Color", g_Config.cvars.transparent_color);
+					AutoSaveColorEdit3("Tint Color", g_Config.cvars.transparent_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -942,13 +989,15 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					if (ImGui::Checkbox("Replace Models of All Players", &g_Config.cvars.replace_players_models))
+				if (ImGui::Checkbox("Replace Models of All Players", &g_Config.cvars.replace_players_models))
 					{
+						g_Config.MarkDirty();
 						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
 							g_ModelsManager.ResetPlayersInfo();
 					}
 					if (ImGui::Checkbox("Replace Model on Self", &g_Config.cvars.replace_model_on_self))
 					{
+						g_Config.MarkDirty();
 						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
 							g_ModelsManager.ResetLocalPlayerInfo();
 					}
@@ -968,8 +1017,9 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					if (ImGui::Checkbox("Replace Models of All Players with Random Ones", &g_Config.cvars.replace_players_models_with_randoms))
+				if (ImGui::Checkbox("Replace Models of All Players with Random Ones", &g_Config.cvars.replace_players_models_with_randoms))
 					{
+						g_Config.MarkDirty();
 						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
 							g_ModelsManager.ResetPlayersInfo();
 					}
@@ -994,13 +1044,15 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					if (ImGui::Checkbox("Replace Models of Specified Players", &g_Config.cvars.replace_specified_players_models))
+				if (ImGui::Checkbox("Replace Models of Specified Players", &g_Config.cvars.replace_specified_players_models))
 					{
+						g_Config.MarkDirty();
 						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
 							g_ModelsManager.ResetPlayersInfo();
 					}
 					if (ImGui::Checkbox("Don't Replace Models of Specified Players", &g_Config.cvars.dont_replace_specified_players_models))
 					{
+						g_Config.MarkDirty();
 						if ( SvenModAPI()->GetClientState() == CLS_ACTIVE )
 							g_ModelsManager.ResetPlayersInfo();
 					}
@@ -1052,8 +1104,9 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					if (ImGui::Combo("Skybox Name", &g_Config.cvars.skybox, g_szSkyboxes, g_iSkyboxesSize))
+				if (ImGui::Combo("Skybox Name", &g_Config.cvars.skybox, g_szSkyboxes, g_iSkyboxesSize))
 					{
+						g_Config.MarkDirty();
 						g_bMenuChangeSkybox = true;
 
 						ConCommand_ChangeSkybox(s_DummyCommand);
@@ -1081,19 +1134,19 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 						
-					ImGui::Checkbox("Show Player's Push Direction", &g_Config.cvars.show_players_push_direction);
+				AutoSaveCheckbox("Show Player's Push Direction", &g_Config.cvars.show_players_push_direction);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Push Direction Length", &g_Config.cvars.push_direction_length, 0.0f, 256.0f);
+					AutoSaveSliderFloat("Push Direction Length", &g_Config.cvars.push_direction_length, 0.0f, 256.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Push Direction Width", &g_Config.cvars.push_direction_width, 0.01f, 100.0f);
+					AutoSaveSliderFloat("Push Direction Width", &g_Config.cvars.push_direction_width, 0.01f, 100.0f);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Push Direction Color", g_Config.cvars.push_direction_color);
+					AutoSaveColorEdit3("Push Direction Color", g_Config.cvars.push_direction_color);
 						
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1107,11 +1160,11 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Remap HUD Color", &g_Config.cvars.remap_hud_color);
+					AutoSaveCheckbox("Remap HUD Color", &g_Config.cvars.remap_hud_color);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("HUD Color", g_Config.cvars.hud_color);
+					AutoSaveColorEdit3("HUD Color", g_Config.cvars.hud_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1125,33 +1178,33 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Fog", &g_Config.cvars.fog);
+					AutoSaveCheckbox("Enable Fog", &g_Config.cvars.fog);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Fog Skybox", &g_Config.cvars.fog_skybox);
+					AutoSaveCheckbox("Fog Skybox", &g_Config.cvars.fog_skybox);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Disable Water Fog", &g_Config.cvars.remove_water_fog);
+					AutoSaveCheckbox("Disable Water Fog", &g_Config.cvars.remove_water_fog);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Fog Start", &g_Config.cvars.fog_start, 0.0f, 10000.0f);
+					AutoSaveSliderFloat("Fog Start", &g_Config.cvars.fog_start, 0.0f, 10000.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Fog End", &g_Config.cvars.fog_end, 0.0f, 10000.0f);
+					AutoSaveSliderFloat("Fog End", &g_Config.cvars.fog_end, 0.0f, 10000.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Density", &g_Config.cvars.fog_density, 0.0f, 10.0f);
+					AutoSaveSliderFloat("Density", &g_Config.cvars.fog_density, 0.0f, 10.0f);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Color", g_Config.cvars.fog_color);
+					AutoSaveColorEdit3("Color", g_Config.cvars.fog_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1206,34 +1259,34 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 						
-					ImGui::Checkbox("Show Speedometer", &g_Config.cvars.show_speed);
+				AutoSaveCheckbox("Show Speedometer", &g_Config.cvars.show_speed);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Show Jump's Speed", &g_Config.cvars.show_jumpspeed);
+					AutoSaveCheckbox("Show Jump's Speed", &g_Config.cvars.show_jumpspeed);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Store Vertical Speed", &g_Config.cvars.show_vertical_speed);
+					AutoSaveCheckbox("Store Vertical Speed", &g_Config.cvars.show_vertical_speed);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Jump's Speed: Fade Duration", &g_Config.cvars.jumpspeed_fade_duration, 0.1f, 2.0f);
+					AutoSaveSliderFloat("Jump's Speed: Fade Duration", &g_Config.cvars.jumpspeed_fade_duration, 0.1f, 2.0f);
 						
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Speed Width Fraction", &g_Config.cvars.speed_width_fraction, 0.0f, 1.0f);
+				AutoSaveSliderFloat("Speed Width Fraction", &g_Config.cvars.speed_width_fraction, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Speed Height Fraction", &g_Config.cvars.speed_height_fraction, 0.0f, 1.0f);
+					AutoSaveSliderFloat("Speed Height Fraction", &g_Config.cvars.speed_height_fraction, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Speed Color", g_Config.cvars.speed_color);
+					AutoSaveColorEdit3("Speed Color", g_Config.cvars.speed_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1243,25 +1296,25 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Show Speedometer (Legacy)", &g_Config.cvars.show_speed_legacy);
+					AutoSaveCheckbox("Show Speedometer (Legacy)", &g_Config.cvars.show_speed_legacy);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Store Vertical Speed (Legacy)", &g_Config.cvars.show_vertical_speed_legacy);
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::SliderFloat("Speed Width Fraction (Legacy)", &g_Config.cvars.speed_width_fraction_legacy, 0.0f, 1.0f);
-
-					ImGui::Spacing();
-
-					ImGui::SliderFloat("Speed Height Fraction (Legacy)", &g_Config.cvars.speed_height_fraction_legacy, 0.0f, 1.0f);
+					AutoSaveCheckbox("Store Vertical Speed (Legacy)", &g_Config.cvars.show_vertical_speed_legacy);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit4("Speed Color (Legacy)", g_Config.cvars.speed_color_legacy);
+					AutoSaveSliderFloat("Speed Width Fraction (Legacy)", &g_Config.cvars.speed_width_fraction_legacy, 0.0f, 1.0f);
+
+					ImGui::Spacing();
+
+					AutoSaveSliderFloat("Speed Height Fraction (Legacy)", &g_Config.cvars.speed_height_fraction_legacy, 0.0f, 1.0f);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					AutoSaveColorEdit4("Speed Color (Legacy)", g_Config.cvars.speed_color_legacy);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1289,41 +1342,41 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Draw Crosshair", &g_Config.cvars.draw_crosshair);
+				AutoSaveCheckbox("Draw Crosshair", &g_Config.cvars.draw_crosshair);
 
 					ImGui::Spacing();
 						
-					ImGui::Checkbox("Draw Crosshair Dot", &g_Config.cvars.draw_crosshair_dot);
+					AutoSaveCheckbox("Draw Crosshair Dot", &g_Config.cvars.draw_crosshair_dot);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Draw Crosshair Outline", &g_Config.cvars.draw_crosshair_outline);
+					AutoSaveCheckbox("Draw Crosshair Outline", &g_Config.cvars.draw_crosshair_outline);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Crosshair Size", &g_Config.cvars.crosshair_size, 1, 50);
+					AutoSaveSliderInt("Crosshair Size", &g_Config.cvars.crosshair_size, 1, 50);
 						
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Crosshair Gap", &g_Config.cvars.crosshair_gap, 0, 50);
+					AutoSaveSliderInt("Crosshair Gap", &g_Config.cvars.crosshair_gap, 0, 50);
 						
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Crosshair Thickness", &g_Config.cvars.crosshair_thickness, 1, 50);
+					AutoSaveSliderInt("Crosshair Thickness", &g_Config.cvars.crosshair_thickness, 1, 50);
 						
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Crosshair Outline Thickness", &g_Config.cvars.crosshair_outline_thickness, 1, 50);
+					AutoSaveSliderInt("Crosshair Outline Thickness", &g_Config.cvars.crosshair_outline_thickness, 1, 50);
 						
 					ImGui::Spacing();
 					ImGui::Spacing();
 						
-					ImGui::ColorEdit4("Crosshair Color", g_Config.cvars.crosshair_color);
+					AutoSaveColorEdit4("Crosshair Color", g_Config.cvars.crosshair_color);
 						
 					ImGui::Spacing();
 
-					ImGui::ColorEdit4("Crosshair Outline Color", g_Config.cvars.crosshair_outline_color);
+					AutoSaveColorEdit4("Crosshair Outline Color", g_Config.cvars.crosshair_outline_color);
 						
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1353,7 +1406,7 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Chat Colors", &g_Config.cvars.enable_chat_colors);
+				AutoSaveCheckbox("Enable Chat Colors", &g_Config.cvars.enable_chat_colors);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1367,6 +1420,7 @@ void CMenuModule::DrawWindowHUD()
 						
 					if (ImGui::Button("Reset Default Player Color"))
 					{
+						g_Config.MarkDirty();
 						g_Config.cvars.player_name_color[0] = 0.6f;
 						g_Config.cvars.player_name_color[1] = 0.75f;
 						g_Config.cvars.player_name_color[2] = 1.0f;
@@ -1375,7 +1429,7 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Default Player Color", g_Config.cvars.player_name_color);
+					AutoSaveColorEdit3("Default Player Color", g_Config.cvars.player_name_color);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1385,19 +1439,19 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 						
-					ImGui::SliderFloat("Rainbow Update Delay", &g_Config.cvars.chat_rainbow_update_delay, 0.0f, 0.5f);
+					AutoSaveSliderFloat("Rainbow Update Delay", &g_Config.cvars.chat_rainbow_update_delay, 0.0f, 0.5f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Rainbow Hue Delta", &g_Config.cvars.chat_rainbow_hue_delta, 0.0f, 0.5f);
+					AutoSaveSliderFloat("Rainbow Hue Delta", &g_Config.cvars.chat_rainbow_hue_delta, 0.0f, 0.5f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Rainbow Saturation", &g_Config.cvars.chat_rainbow_saturation, 0.0f, 1.0f);
+					AutoSaveSliderFloat("Rainbow Saturation", &g_Config.cvars.chat_rainbow_saturation, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Rainbow Lightness", &g_Config.cvars.chat_rainbow_lightness, 0.0f, 1.0f);
+					AutoSaveSliderFloat("Rainbow Lightness", &g_Config.cvars.chat_rainbow_lightness, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1407,27 +1461,27 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #1", g_Config.cvars.chat_color_one);
+					AutoSaveColorEdit3("Custom Color #1", g_Config.cvars.chat_color_one);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #2", g_Config.cvars.chat_color_two);
+					AutoSaveColorEdit3("Custom Color #2", g_Config.cvars.chat_color_two);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #3", g_Config.cvars.chat_color_three);
+					AutoSaveColorEdit3("Custom Color #3", g_Config.cvars.chat_color_three);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #4", g_Config.cvars.chat_color_four);
+					AutoSaveColorEdit3("Custom Color #4", g_Config.cvars.chat_color_four);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #5", g_Config.cvars.chat_color_five);
+					AutoSaveColorEdit3("Custom Color #5", g_Config.cvars.chat_color_five);
 
 					ImGui::Spacing();
 
-					ImGui::ColorEdit3("Custom Color #6", g_Config.cvars.chat_color_six);
+					AutoSaveColorEdit3("Custom Color #6", g_Config.cvars.chat_color_six);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1455,34 +1509,34 @@ void CMenuModule::DrawWindowHUD()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Custom Vote Popup", &g_Config.cvars.vote_popup);
+				AutoSaveCheckbox("Enable Custom Vote Popup", &g_Config.cvars.vote_popup);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Width Size##cvp", &g_Config.cvars.vote_popup_width_size, 0, 1000);
+					AutoSaveSliderInt("Width Size##cvp", &g_Config.cvars.vote_popup_width_size, 0, 1000);
 
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Height Size##cvp", &g_Config.cvars.vote_popup_height_size, 0, 1000);
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::SliderInt("Width Border Pixels##cvp", &g_Config.cvars.vote_popup_w_border_pix, 0, 100);
-
-					ImGui::Spacing();
-
-					ImGui::SliderInt("Height Border Pixels##cvp", &g_Config.cvars.vote_popup_h_border_pix, 0, 100);
+					AutoSaveSliderInt("Height Size##cvp", &g_Config.cvars.vote_popup_height_size, 0, 1000);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Width Fraction##cvp", &g_Config.cvars.vote_popup_width_frac, 0.0f, 1.0f);
+					AutoSaveSliderInt("Width Border Pixels##cvp", &g_Config.cvars.vote_popup_w_border_pix, 0, 100);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Height Fraction##cvp", &g_Config.cvars.vote_popup_height_frac, 0.0f, 1.0f);
+				AutoSaveSliderInt("Height Border Pixels##cvp", &g_Config.cvars.vote_popup_h_border_pix, 0, 100);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					AutoSaveSliderFloat("Width Fraction##cvp", &g_Config.cvars.vote_popup_width_frac, 0.0f, 1.0f);
+
+					ImGui::Spacing();
+
+					AutoSaveSliderFloat("Height Fraction##cvp", &g_Config.cvars.vote_popup_height_frac, 0.0f, 1.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1553,35 +1607,35 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Autojump", &g_Config.cvars.autojump);
+				AutoSaveCheckbox("Autojump", &g_Config.cvars.autojump);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Jumpbug", &g_Config.cvars.jumpbug);
+					AutoSaveCheckbox("Jumpbug", &g_Config.cvars.jumpbug);
 
 					ImGui::Spacing();
 						
-					ImGui::Checkbox("Edgejump", &g_Config.cvars.edgejump);
+					AutoSaveCheckbox("Edgejump", &g_Config.cvars.edgejump);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Doubleduck", &g_Config.cvars.doubleduck);
+					AutoSaveCheckbox("Doubleduck", &g_Config.cvars.doubleduck);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Fastrun", &g_Config.cvars.fastrun);
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Checkbox("Auto Ceil-Clipping", &g_Config.cvars.auto_ceil_clipping); ImGui::SameLine();
-					ImGui::Checkbox("Tertiary Attack Glitch", &g_Config.cvars.tertiary_attack_glitch);
+				AutoSaveCheckbox("Fastrun", &g_Config.cvars.fastrun);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Rotate Dead Body", &g_Config.cvars.rotate_dead_body); ImGui::SameLine();
-					ImGui::Checkbox("Quake Guns", &g_Config.cvars.quake_guns);
+					AutoSaveCheckbox("Auto Ceil-Clipping", &g_Config.cvars.auto_ceil_clipping); ImGui::SameLine();
+					AutoSaveCheckbox("Tertiary Attack Glitch", &g_Config.cvars.tertiary_attack_glitch);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					AutoSaveCheckbox("Rotate Dead Body", &g_Config.cvars.rotate_dead_body); ImGui::SameLine();
+					AutoSaveCheckbox("Quake Guns", &g_Config.cvars.quake_guns);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1598,20 +1652,20 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Lock Pitch", &g_Config.cvars.lock_pitch);
+					AutoSaveCheckbox("Lock Pitch", &g_Config.cvars.lock_pitch);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Lock Pitch: Angle", &g_Config.cvars.lock_pitch_angle, -179.999f, 180.0f);
+					AutoSaveSliderFloat("Lock Pitch: Angle", &g_Config.cvars.lock_pitch_angle, -179.999f, 180.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Lock Yaw", &g_Config.cvars.lock_yaw);
+					AutoSaveCheckbox("Lock Yaw", &g_Config.cvars.lock_yaw);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Lock Yaw: Angle", &g_Config.cvars.lock_yaw_angle, 0.0f, 360.0f);
+					AutoSaveSliderFloat("Lock Yaw: Angle", &g_Config.cvars.lock_yaw_angle, 0.0f, 360.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1628,21 +1682,21 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Inclined Rotation", &g_Config.cvars.spin_pitch_angle);
+					AutoSaveCheckbox("Inclined Rotation", &g_Config.cvars.spin_pitch_angle);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Inclined Rotation: Angle", &g_Config.cvars.spin_pitch_rotation_angle, -10.0f, 10.0f);
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Checkbox("Spin Yaw", &g_Config.cvars.spin_yaw_angle);
+					AutoSaveSliderFloat("Inclined Rotation: Angle", &g_Config.cvars.spin_pitch_rotation_angle, -10.0f, 10.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Spin Yaw: Angle", &g_Config.cvars.spin_yaw_rotation_angle, -10.0f, 10.0f);
+					AutoSaveCheckbox("Spin Yaw", &g_Config.cvars.spin_yaw_angle);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					AutoSaveSliderFloat("Spin Yaw: Angle", &g_Config.cvars.spin_yaw_rotation_angle, -10.0f, 10.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1673,20 +1727,20 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Strafer", &g_Config.cvars.strafe);
+				AutoSaveCheckbox("Enable Strafer", &g_Config.cvars.strafe);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Ignore Ground", &g_Config.cvars.strafe_ignore_ground);
+					AutoSaveCheckbox("Ignore Ground", &g_Config.cvars.strafe_ignore_ground);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Combo("Strafe Direction", &g_Config.cvars.strafe_dir, strafe_dir_items, IM_ARRAYSIZE(strafe_dir_items));
+					AutoSaveComboArray("Strafe Direction", &g_Config.cvars.strafe_dir, strafe_dir_items, IM_ARRAYSIZE(strafe_dir_items));
 
 					ImGui::Spacing();
 
-					ImGui::Combo("Strafe Type", &g_Config.cvars.strafe_type, strafe_type_items, IM_ARRAYSIZE(strafe_type_items));
+					AutoSaveComboArray("Strafe Type", &g_Config.cvars.strafe_type, strafe_type_items, IM_ARRAYSIZE(strafe_type_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1717,15 +1771,15 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Pulsator", &g_Config.cvars.color_pulsator);
+				AutoSaveCheckbox("Enable Pulsator", &g_Config.cvars.color_pulsator);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Change Top Color", &g_Config.cvars.color_pulsator_top);
+					AutoSaveCheckbox("Change Top Color", &g_Config.cvars.color_pulsator_top);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Change Bottom Color", &g_Config.cvars.color_pulsator_bottom);
+					AutoSaveCheckbox("Change Bottom Color", &g_Config.cvars.color_pulsator_bottom);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1736,7 +1790,7 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("  ", &g_Config.cvars.color_pulsator_delay, 0.1f, 2.5f);
+					AutoSaveSliderFloat("  ", &g_Config.cvars.color_pulsator_delay, 0.1f, 2.5f);
 
 					ImGui::Spacing();
 
@@ -1777,29 +1831,29 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable Fake Lag", &g_Config.cvars.fakelag);
+				AutoSaveCheckbox("Enable Fake Lag", &g_Config.cvars.fakelag);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Adaptive Ex Interp", &g_Config.cvars.fakelag_adaptive_ex_interp);
+					AutoSaveCheckbox("Adaptive Ex Interp", &g_Config.cvars.fakelag_adaptive_ex_interp);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderInt("Limit", &g_Config.cvars.fakelag_limit, 0, 256);
+					AutoSaveSliderInt("Limit", &g_Config.cvars.fakelag_limit, 0, 256);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Variance", &g_Config.cvars.fakelag_variance, 0.0f, 100.0f);
+					AutoSaveSliderFloat("Variance", &g_Config.cvars.fakelag_variance, 0.0f, 100.0f);
 
 					ImGui::Spacing();
 
-					ImGui::Combo("Fake Lag Type", &g_Config.cvars.fakelag_type, fakelag_type_items, IM_ARRAYSIZE(fakelag_type_items));
+					AutoSaveComboArray("Fake Lag Type", &g_Config.cvars.fakelag_type, fakelag_type_items, IM_ARRAYSIZE(fakelag_type_items));
 
 					ImGui::Spacing();
 
-					ImGui::Combo("Fake Move Type", &g_Config.cvars.fakelag_move, fakelag_move_items, IM_ARRAYSIZE(fakelag_move_items));
+					AutoSaveComboArray("Fake Move Type", &g_Config.cvars.fakelag_move, fakelag_move_items, IM_ARRAYSIZE(fakelag_move_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1838,33 +1892,33 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Combo("Mode", &g_Config.cvars.antiafk, antiafk_items, IM_ARRAYSIZE(antiafk_items));
+				AutoSaveComboArray("Mode", &g_Config.cvars.antiafk, antiafk_items, IM_ARRAYSIZE(antiafk_items));
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Anti-AFK Rotate Camera", &g_Config.cvars.antiafk_rotate_camera);
+					AutoSaveCheckbox("Anti-AFK Rotate Camera", &g_Config.cvars.antiafk_rotate_camera);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Anti-AFK Stay Within Range", &g_Config.cvars.antiafk_stay_within_range);
+					AutoSaveCheckbox("Anti-AFK Stay Within Range", &g_Config.cvars.antiafk_stay_within_range);
 						
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Anti-AFK Reset Stay Position", &g_Config.cvars.antiafk_reset_stay_pos);
+					AutoSaveCheckbox("Anti-AFK Reset Stay Position", &g_Config.cvars.antiafk_reset_stay_pos);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Rotation Angle", &g_Config.cvars.antiafk_rotation_angle, -7.0f, 7.0f);
+					AutoSaveSliderFloat("Rotation Angle", &g_Config.cvars.antiafk_rotation_angle, -7.0f, 7.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Stay Within Radius", &g_Config.cvars.antiafk_stay_radius, 10.0f, 500.0f);
+					AutoSaveSliderFloat("Stay Within Radius", &g_Config.cvars.antiafk_stay_radius, 10.0f, 500.0f);
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Stay Within Spread Angle", &g_Config.cvars.antiafk_stay_radius_offset_angle, 0.0f, 89.0f);
+					AutoSaveSliderFloat("Stay Within Spread Angle", &g_Config.cvars.antiafk_stay_radius_offset_angle, 0.0f, 89.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1895,21 +1949,21 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Hold Mode", &g_Config.cvars.keyspam_hold_mode);
+				AutoSaveCheckbox("Hold Mode", &g_Config.cvars.keyspam_hold_mode);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Spam E", &g_Config.cvars.keyspam_e); ImGui::SameLine();
-					ImGui::Checkbox("Spam Q", &g_Config.cvars.keyspam_q);
+					AutoSaveCheckbox("Spam E", &g_Config.cvars.keyspam_e); ImGui::SameLine();
+					AutoSaveCheckbox("Spam Q", &g_Config.cvars.keyspam_q);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Spam W", &g_Config.cvars.keyspam_w); ImGui::SameLine();
-					ImGui::Checkbox("Spam S", &g_Config.cvars.keyspam_s);
+					AutoSaveCheckbox("Spam W", &g_Config.cvars.keyspam_w); ImGui::SameLine();
+					AutoSaveCheckbox("Spam S", &g_Config.cvars.keyspam_s);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Spam CTRL", &g_Config.cvars.keyspam_ctrl);
+					AutoSaveCheckbox("Spam CTRL", &g_Config.cvars.keyspam_ctrl);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -1987,16 +2041,16 @@ void CMenuModule::DrawWindowUtility()
 						
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("CamHack: Speed Factor", &g_Config.cvars.camhack_speed_factor, 0.0f, 15.0f);
+				AutoSaveSliderFloat("CamHack: Speed Factor", &g_Config.cvars.camhack_speed_factor, 0.0f, 15.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Hide HUD", &g_Config.cvars.camhack_hide_hud);
+					AutoSaveCheckbox("Hide HUD", &g_Config.cvars.camhack_hide_hud);
 						
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Show Model", &g_Config.cvars.camhack_show_model);
+					AutoSaveCheckbox("Show Model", &g_Config.cvars.camhack_show_model);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2015,15 +2069,15 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Enable First-Person Roaming", &g_Config.cvars.fp_roaming);
+				AutoSaveCheckbox("Enable First-Person Roaming", &g_Config.cvars.fp_roaming);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Draw Crosshair in Roaming", &g_Config.cvars.fp_roaming_draw_crosshair);
+					AutoSaveCheckbox("Draw Crosshair in Roaming", &g_Config.cvars.fp_roaming_draw_crosshair);
 
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Lerp First-Person View", &g_Config.cvars.fp_roaming_lerp);
+					AutoSaveCheckbox("Lerp First-Person View", &g_Config.cvars.fp_roaming_lerp);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2033,7 +2087,7 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("FP Roaming: Lerp Value", &g_Config.cvars.fp_roaming_lerp_value, 0.001f, 1.0f);
+					AutoSaveSliderFloat("FP Roaming: Lerp Value", &g_Config.cvars.fp_roaming_lerp_value, 0.001f, 1.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2061,7 +2115,7 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 						
-					ImGui::Checkbox("Ignore Different Map Versions", &g_Config.cvars.ignore_different_map_versions);
+				AutoSaveCheckbox("Ignore Different Map Versions", &g_Config.cvars.ignore_different_map_versions);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2075,23 +2129,23 @@ void CMenuModule::DrawWindowUtility()
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("One Tick Exploit", &g_Config.cvars.one_tick_exploit);
+					AutoSaveCheckbox("One Tick Exploit", &g_Config.cvars.one_tick_exploit);
 
 					ImGui::Spacing();
 
 					ImGui::Text("Lag Interval");
-					ImGui::SliderInt("##one_tick_exploit_lag_interval", &g_Config.cvars.one_tick_exploit_lag_interval, 1, 256);
+					AutoSaveSliderInt("##one_tick_exploit_lag_interval", &g_Config.cvars.one_tick_exploit_lag_interval, 1, 256);
 						
 					ImGui::Text("Speedhack");
-					ImGui::SliderFloat("##one_tick_exploit_speedhack", &g_Config.cvars.one_tick_exploit_speedhack, 0.01f, 100000.0f);
+					AutoSaveSliderFloat("##one_tick_exploit_speedhack", &g_Config.cvars.one_tick_exploit_speedhack, 0.01f, 100000.0f);
 						
 					ImGui::Spacing();
 					ImGui::Spacing();
 					ImGui::Spacing();
 
-					ImGui::Checkbox("Fast Crowbar", &g_Config.cvars.fast_crowbar);
-					ImGui::Checkbox("Fast Crowbar [Auto Freeze]", &g_Config.cvars.fast_crowbar2);
-					ImGui::Checkbox("Fast Medkit", &g_Config.cvars.fast_medkit);
+					AutoSaveCheckbox("Fast Crowbar", &g_Config.cvars.fast_crowbar);
+					AutoSaveCheckbox("Fast Crowbar [Auto Freeze]", &g_Config.cvars.fast_crowbar2);
+					AutoSaveCheckbox("Fast Medkit", &g_Config.cvars.fast_medkit);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2107,12 +2161,13 @@ void CMenuModule::DrawWindowUtility()
 
 					if (ImGui::Button("Reset App Speed"))
 					{
+						g_Config.MarkDirty();
 						g_Config.cvars.application_speed = 1.0f;
 					}
 
 					ImGui::Spacing();
 
-					ImGui::SliderFloat("Application Speed", &g_Config.cvars.application_speed, 0.1f, 50.0f);
+					AutoSaveSliderFloat("Application Speed", &g_Config.cvars.application_speed, 0.1f, 50.0f);
 
 					ImGui::Spacing();
 					ImGui::Spacing();
@@ -2155,31 +2210,21 @@ void CMenuModule::DrawWindowConfig()
 			{
 				bool bSelected = (g_Config.current_config.compare( g_Config.configs[i] ) == 0);
 
-				if (ImGui::Selectable(g_Config.configs[i].c_str(), bSelected))
+	if (ImGui::Selectable(g_Config.configs[i].c_str(), bSelected))
+				{
 					g_Config.current_config = g_Config.configs[i];
+					g_Config.Load();
+					LoadMenuTheme();
+					WindowStyle();
+				}
 
 				if (bSelected)
 					ImGui::SetItemDefaultFocus();
 			}
 
-			ImGui::EndListBox();
+		ImGui::EndListBox();
 		}
 
-		if (ImGui::Button("Load"))
-		{
-			g_Config.Load();
-
-			LoadMenuTheme();
-			WindowStyle();
-		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Save"))
-			g_Config.Save();
-
-		ImGui::SameLine();
-			
 		if (ImGui::Button("New"))
 			g_Config.New();
 			
@@ -2255,7 +2300,7 @@ void CMenuModule::DrawWindowSettings()
 			ImGui::Spacing();
 
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 2) - (145 / 2));
-			ImGui::Checkbox("Auto Resize", &g_Config.cvars.menu_auto_resize);
+			AutoSaveCheckbox("Auto Resize", &g_Config.cvars.menu_auto_resize);
 
 			ImGui::Spacing();
 			ImGui::Spacing();
@@ -2270,7 +2315,7 @@ void CMenuModule::DrawWindowSettings()
 			ImGui::Spacing();
 
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 2) - (135 / 2));
-			ImGui::Checkbox("Save Soundcache", &g_Config.cvars.save_soundcache);
+			AutoSaveCheckbox("Save Soundcache", &g_Config.cvars.save_soundcache);
 
 			ImGui::Spacing();
 			ImGui::Spacing();
@@ -2307,6 +2352,7 @@ void CMenuModule::DrawWindowSettings()
 			ImGui::PushItemWidth(150);
 			if (ImGui::Combo("", &g_Config.cvars.menu_theme, theme_items, IM_ARRAYSIZE(theme_items)))
 			{
+				g_Config.MarkDirty();
 				LoadSavedStyle();
 
 				LoadMenuTheme();
@@ -2325,7 +2371,7 @@ void CMenuModule::DrawWindowSettings()
 
 			ImGui::PushItemWidth(150);
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 2) - (130 / 2));
-			ImGui::SliderFloat(" ", &g_Config.cvars.menu_opacity, 0.1f, 1.0f);
+			AutoSaveSliderFloat(" ", &g_Config.cvars.menu_opacity, 0.1f, 1.0f);
 
 			ImGui::PopItemWidth();
 			ImGui::Spacing();

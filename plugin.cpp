@@ -216,6 +216,7 @@ void CSvenInternal::GameFrame(client_state_t state, double frametime, bool bPost
 
 void CSvenInternal::Draw(void)
 {
+	g_Config.ThinkSave(g_pEngineFuncs->Sys_FloatTime());
 	g_Visual.Process();
 	g_VotePopup.Draw();
 }

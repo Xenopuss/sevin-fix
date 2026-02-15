@@ -1036,6 +1036,20 @@ void CConfig::Save()
 	}
 }
 
+void CConfig::MarkDirty()
+{
+	m_bConfigDirty = true;
+}
+
+void CConfig::ThinkSave(float currentTime)
+{
+	if (m_bConfigDirty && (currentTime - m_flLastChangeTime >= SAVE_DEBOUNCE_SECONDS))
+	{
+		Save();
+		m_bConfigDirty = false;
+	}
+}
+
 void CConfig::New()
 {
 	config_vars v;
