@@ -555,8 +555,8 @@ void CVisual::ESP()
 			}
 			else
 			{
-				vecTop.z += pEntity->curstate.maxs.z;
-				vecBottom.z -= pEntity->curstate.mins.z; // Fixed: use mins.z instead of maxs.z
+				vecTop.z += VEC_HULL_MAX.z;
+				vecBottom.z -= VEC_HULL_MIN.z;
 
 				boxWidth = (VEC_HULL_MAX.x - VEC_HULL_MIN.x) / (VEC_HULL_MAX.z - VEC_HULL_MIN.z);
 			}
