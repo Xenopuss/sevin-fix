@@ -529,9 +529,8 @@ void CVisual::ESP()
 				// For distant entities without valid bounds, use defaults
 				if ( pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f && flDistance > 500.0f )
 				{
-					// Use approximate standing player bounds for distant entities
 					vecTop.z += 72.0f;
-					vecBottom.z -= 0.0f;
+					vecBottom.z += 36.0f;
 				}
 				else
 				{
@@ -556,7 +555,7 @@ void CVisual::ESP()
 			if ( pEntity->curstate.usehull )
 			{
 				vecTop.z += VEC_DUCK_HULL_MAX.z;
-				vecBottom.z += VEC_DUCK_HULL_MIN.z;
+				vecBottom.z -= VEC_DUCK_HULL_MIN.z;
 
 				boxWidth = (VEC_DUCK_HULL_MAX.x - VEC_DUCK_HULL_MIN.x) / (VEC_DUCK_HULL_MAX.z - VEC_DUCK_HULL_MIN.z);
 			}
@@ -611,7 +610,9 @@ void CVisual::ESP()
 
 			if ( bItem )
 			{
-				boxHeight = 0.f;
+				float distFactor = 1.0f - (flDistance / g_Config.cvars.esp_distance);
+				distFactor = max(0.3f, min(1.0f, distFactor));
+				boxHeight = max(20.0f, 50.0f * distFactor);
 
 				r = ColorFloatToByte(g_Config.cvars.esp_item_color[0]);
 				g = ColorFloatToByte(g_Config.cvars.esp_item_color[1]);
@@ -631,6 +632,8 @@ void CVisual::ESP()
 			}
 
 			boxWidth = boxHeight * boxWidth;
+			boxWidth = max(boxWidth, 15.0f);
+			boxHeight = max(boxHeight, 25.0f);
 
 			if (bPlayer)
 			{
