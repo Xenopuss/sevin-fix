@@ -399,7 +399,6 @@ void CVisual::ESP()
 	cl_entity_s *pViewModel = g_pEngineFuncs->GetViewModel();
 
 	int nLocalPlayer = pLocal->index;
-	const int MSG_TOLERANCE = 8; // Increased tolerance for distant entities with lower update rates
 
 	// Removed OpenMP - OpenGL/VGUI is not thread-safe, causes flickering
 	for (int i = 1; i <= MAXENTS; ++i)
@@ -422,10 +421,25 @@ void CVisual::ESP()
 
 		cl_entity_s *pEntity = g_pEngineFuncs->GetEntityByIndex(i);
 		class_info_t classInfo = { CLASS_PLAYER, FL_CLASS_FRIEND };
+		
+		// Calculate distance early for tolerance and checks
+		float flDistanceToEntity = 0.0f;
+		if (pEntity && pLocal)
+		{
+			flDistanceToEntity = (pEntity->origin - pLocal->origin).Length();
+		}
+		
+		// Dynamic tolerance: 8 for close, up to 32 for very distant entities (>1000m)
+		int iDynamicTolerance = 8;
+		if (flDistanceToEntity > 1000.0f)
+			iDynamicTolerance = 32;
+		else if (flDistanceToEntity > 500.0f)
+			iDynamicTolerance = 16;
 
 		// Added messagenum tolerance to prevent flickering from network lag
+		// Use dynamic tolerance based on distance - farther entities need more tolerance
 		if ( !pEntity || !(pModel = pEntity->model) || *pModel->name != 'm' || pEntity == pViewModel || 
-		     pEntity->curstate.messagenum < pLocal->curstate.messagenum - MSG_TOLERANCE )
+		     pEntity->curstate.messagenum < pLocal->curstate.messagenum - iDynamicTolerance )
 			continue;
 
 		if ( pszSlashLastOccur = strrchr(pModel->name, '/') )
@@ -444,11 +458,20 @@ void CVisual::ESP()
 
 		if ( !bItem )
 		{
-			if ( (!pEntity->player && pEntity->curstate.solid <= SOLID_TRIGGER) || pEntity->curstate.movetype == MOVETYPE_NONE )
-				continue;
+			// For distant entities (>500m), skip solid/movetype checks as server may not send valid data
+			// Only apply strict checks for close entities or items
+			if (flDistanceToEntity < 500.0f)
+			{
+				if ( (!pEntity->player && pEntity->curstate.solid <= SOLID_TRIGGER) || pEntity->curstate.movetype == MOVETYPE_NONE )
+					continue;
+			}
 
-			if ( pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f )
+			// For distant entities, use default bounds instead of skipping
+			// Note: We'll handle default bounds later when vecTop/vecBottom are initialized
+			if ( pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f && flDistanceToEntity <= 500.0f )
+			{
 				continue;
+			}
 
 			if ( !(pStudioHeader = (studiohdr_t *)g_pEngineStudio->Mod_Extradata(pModel)) || pStudioHeader->numhitboxes == 0 )
 				continue;
@@ -459,7 +482,7 @@ void CVisual::ESP()
 		}
 
 		bPlayer = pEntity->player;
-		flDistance = (pEntity->origin - pLocal->origin).Length();
+		flDistance = flDistanceToEntity; // Use already calculated distance
 
 		if ( flDistance > g_Config.cvars.esp_distance )
 			continue;
@@ -483,7 +506,18 @@ void CVisual::ESP()
 
 			if ( !bItem )
 			{
-				vecTop.z += pEntity->curstate.maxs.z;
+				// For distant entities without valid bounds, use defaults
+				if ( pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f && flDistance > 500.0f )
+				{
+					// Use approximate standing player bounds for distant entities
+					vecTop.z += 72.0f;
+					vecBottom.z -= 0.0f;
+				}
+				else
+				{
+					vecTop.z += pEntity->curstate.maxs.z;
+					vecBottom.z -= pEntity->curstate.mins.z;
+				}
 				vecBottom.z -= pEntity->curstate.mins.z;
 
 				boxWidth = max(pEntity->curstate.maxs.x - pEntity->curstate.mins.x, pEntity->curstate.maxs.y - pEntity->curstate.mins.y) /
