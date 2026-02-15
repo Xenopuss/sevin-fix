@@ -357,7 +357,12 @@ static void SetFilesAttributes(const char *m_szFdPath, DWORD dwAttribute)
 			#pragma warning(disable: 26450)
 			#pragma warning(disable: 4307)
 
-				if (!(FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (FileInformation.nFileSizeHigh * (MAXDWORD + 1)) + FileInformation.nFileSizeLow > 0)
+				// Use 64-bit arithmetic to avoid overflow on 32-bit systems
+				LARGE_INTEGER fileSize;
+				fileSize.HighPart = FileInformation.nFileSizeHigh;
+				fileSize.LowPart = FileInformation.nFileSizeLow;
+				
+				if (!(FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && fileSize.QuadPart > 0)
 				{
 					//it is a file
 					::SetFileAttributesA(m_szPath, dwAttribute);

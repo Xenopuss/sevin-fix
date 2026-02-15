@@ -7,6 +7,13 @@
 #include <algorithm>
 #include <cmath>
 
+// Helper to safely convert float color [0.0-1.0] to byte [0-255] with clamping
+inline int ColorFloatToByte(float val)
+{
+	int result = int(255.f * val);
+	return (result < 0) ? 0 : (result > 255) ? 255 : result;
+}
+
 #include <dbg.h>
 #include <convar.h>
 #include <IClient.h>
@@ -157,9 +164,9 @@ void CVisual::ResetJumpSpeed()
 	m_flFadeTime = g_Config.cvars.jumpspeed_fade_duration;
 	m_flJumpSpeed = 0.f;
 
-	m_clFadeFrom[0] = int(255.f * g_Config.cvars.speed_color[0]);
-	m_clFadeFrom[1] = int(255.f * g_Config.cvars.speed_color[1]);
-	m_clFadeFrom[2] = int(255.f * g_Config.cvars.speed_color[2]);
+	m_clFadeFrom[0] = ColorFloatToByte(g_Config.cvars.speed_color[0]);
+	m_clFadeFrom[1] = ColorFloatToByte(g_Config.cvars.speed_color[1]);
+	m_clFadeFrom[2] = ColorFloatToByte(g_Config.cvars.speed_color[2]);
 
 	m_bOnGround = true;
 }
@@ -180,16 +187,16 @@ void CVisual::ShowSpeed()
 			g_Drawing.DrawNumber(flSpeed > 0.f ? int(floor(flSpeed)) : int(ceil(flSpeed)),
 								 int(m_iScreenWidth * g_Config.cvars.speed_width_fraction),
 								 int(m_iScreenHeight * g_Config.cvars.speed_height_fraction),
-								 int(255.f * g_Config.cvars.speed_color[0]),
-								 int(255.f * g_Config.cvars.speed_color[1]),
-								 int(255.f * g_Config.cvars.speed_color[2]),
+								 ColorFloatToByte(g_Config.cvars.speed_color[0]),
+								 ColorFloatToByte(g_Config.cvars.speed_color[1]),
+								 ColorFloatToByte(g_Config.cvars.speed_color[2]),
 								 FONT_ALIGN_CENTER);
 
 			if (g_Config.cvars.show_jumpspeed)
 			{
-				int r = int(255.f * g_Config.cvars.speed_color[0]);
-				int g = int(255.f * g_Config.cvars.speed_color[1]);
-				int b = int(255.f * g_Config.cvars.speed_color[2]);
+				int r = ColorFloatToByte(g_Config.cvars.speed_color[0]);
+				int g = ColorFloatToByte(g_Config.cvars.speed_color[1]);
+				int b = ColorFloatToByte(g_Config.cvars.speed_color[2]);
 
 				float flFadeDuration = g_Config.cvars.jumpspeed_fade_duration;
 				int iSpriteHeight = g_Drawing.GetNumberSpriteHeight();
@@ -236,13 +243,13 @@ void CVisual::ShowSpeed()
 					if (m_flFadeTime > flFadeDuration || !isfinite(m_flFadeTime) )
 						m_flFadeTime = flFadeDuration;
 
-					float flFadeFrom_R = int(255.f * g_Config.cvars.speed_color[0]) - m_clFadeFrom[0] / flFadeDuration;
-					float flFadeFrom_G = int(255.f * g_Config.cvars.speed_color[1]) - m_clFadeFrom[1] / flFadeDuration;
-					float flFadeFrom_B = int(255.f * g_Config.cvars.speed_color[2]) - m_clFadeFrom[2] / flFadeDuration;
+					float flFadeFrom_R = ColorFloatToByte(g_Config.cvars.speed_color[0]) - m_clFadeFrom[0] / flFadeDuration;
+					float flFadeFrom_G = ColorFloatToByte(g_Config.cvars.speed_color[1]) - m_clFadeFrom[1] / flFadeDuration;
+					float flFadeFrom_B = ColorFloatToByte(g_Config.cvars.speed_color[2]) - m_clFadeFrom[2] / flFadeDuration;
 
-					r = int(int(255.f * g_Config.cvars.speed_color[0]) - flFadeFrom_R * (flFadeDuration - m_flFadeTime));
-					g = int(int(255.f * g_Config.cvars.speed_color[1]) - flFadeFrom_G * (flFadeDuration - m_flFadeTime));
-					b = int(int(255.f * g_Config.cvars.speed_color[2]) - flFadeFrom_B * (flFadeDuration - m_flFadeTime));
+					r = int(ColorFloatToByte(g_Config.cvars.speed_color[0]) - flFadeFrom_R * (flFadeDuration - m_flFadeTime));
+					g = int(ColorFloatToByte(g_Config.cvars.speed_color[1]) - flFadeFrom_G * (flFadeDuration - m_flFadeTime));
+					b = int(ColorFloatToByte(g_Config.cvars.speed_color[2]) - flFadeFrom_B * (flFadeDuration - m_flFadeTime));
 
 					m_flPrevTime = m_flTime;
 				}
@@ -271,10 +278,10 @@ void CVisual::ShowSpeed()
 			g_Drawing.DrawStringF(g_hFontSpeedometer,
 								  int(m_iScreenWidth * g_Config.cvars.speed_width_fraction_legacy),
 								  int(m_iScreenHeight * g_Config.cvars.speed_height_fraction_legacy),
-								  int(255.f * g_Config.cvars.speed_color_legacy[0]),
-								  int(255.f * g_Config.cvars.speed_color_legacy[1]),
-								  int(255.f * g_Config.cvars.speed_color_legacy[2]),
-								  int(255.f * g_Config.cvars.speed_color_legacy[3]),
+								  ColorFloatToByte(g_Config.cvars.speed_color_legacy[0]),
+								  ColorFloatToByte(g_Config.cvars.speed_color_legacy[1]),
+								  ColorFloatToByte(g_Config.cvars.speed_color_legacy[2]),
+								  ColorFloatToByte(g_Config.cvars.speed_color_legacy[3]),
 								  FONT_ALIGN_CENTER,
 								  "%.1f",
 								  flSpeed);
@@ -320,10 +327,10 @@ void CVisual::DrawCrosshair()
 		{
 			g_Drawing.DrawCrosshairShadow((m_iScreenWidth / 2) - 1,
 											(m_iScreenHeight / 2) - 1,
-											int(255.f * g_Config.cvars.crosshair_outline_color[0]),
-											int(255.f * g_Config.cvars.crosshair_outline_color[1]),
-											int(255.f * g_Config.cvars.crosshair_outline_color[2]),
-											int(255.f * g_Config.cvars.crosshair_outline_color[3]),
+											ColorFloatToByte(g_Config.cvars.crosshair_outline_color[0]),
+											ColorFloatToByte(g_Config.cvars.crosshair_outline_color[1]),
+											ColorFloatToByte(g_Config.cvars.crosshair_outline_color[2]),
+											ColorFloatToByte(g_Config.cvars.crosshair_outline_color[3]),
 											g_Config.cvars.crosshair_size,
 											g_Config.cvars.crosshair_gap,
 											g_Config.cvars.crosshair_thickness,
@@ -331,10 +338,10 @@ void CVisual::DrawCrosshair()
 			
 			//g_Drawing.DrawCrosshair((m_iScreenWidth / 2) - 1,
 			//						(m_iScreenHeight / 2) - 1,
-			//						int(255.f * g_Config.cvars.crosshair_outline_color[0]),
-			//						int(255.f * g_Config.cvars.crosshair_outline_color[1]),
-			//						int(255.f * g_Config.cvars.crosshair_outline_color[2]),
-			//						int(255.f * g_Config.cvars.crosshair_outline_color[3]),
+			//						ColorFloatToByte(g_Config.cvars.crosshair_outline_color[0]),
+			//						ColorFloatToByte(g_Config.cvars.crosshair_outline_color[1]),
+			//						ColorFloatToByte(g_Config.cvars.crosshair_outline_color[2]),
+			//						ColorFloatToByte(g_Config.cvars.crosshair_outline_color[3]),
 			//						g_Config.cvars.crosshair_size,
 			//						g_Config.cvars.crosshair_gap,
 			//						g_Config.cvars.crosshair_thickness + g_Config.cvars.crosshair_outline_thickness);
@@ -343,19 +350,19 @@ void CVisual::DrawCrosshair()
 			{
 				g_Drawing.DrawDotShadow((m_iScreenWidth / 2) - 1,
 										(m_iScreenHeight / 2) - 1,
-										int(255.f * g_Config.cvars.crosshair_outline_color[0]),
-										int(255.f * g_Config.cvars.crosshair_outline_color[1]),
-										int(255.f * g_Config.cvars.crosshair_outline_color[2]),
-										int(255.f * g_Config.cvars.crosshair_outline_color[3]),
+										ColorFloatToByte(g_Config.cvars.crosshair_outline_color[0]),
+										ColorFloatToByte(g_Config.cvars.crosshair_outline_color[1]),
+										ColorFloatToByte(g_Config.cvars.crosshair_outline_color[2]),
+										ColorFloatToByte(g_Config.cvars.crosshair_outline_color[3]),
 										g_Config.cvars.crosshair_thickness,
 										g_Config.cvars.crosshair_outline_thickness);
 
 				//g_Drawing.DrawDot((m_iScreenWidth / 2) - 1,
 				//				  (m_iScreenHeight / 2) - 1,
-				//				  int(255.f * g_Config.cvars.crosshair_outline_color[0]),
-				//				  int(255.f * g_Config.cvars.crosshair_outline_color[1]),
-				//				  int(255.f * g_Config.cvars.crosshair_outline_color[2]),
-				//				  int(255.f * g_Config.cvars.crosshair_outline_color[3]),
+				//				  ColorFloatToByte(g_Config.cvars.crosshair_outline_color[0]),
+				//				  ColorFloatToByte(g_Config.cvars.crosshair_outline_color[1]),
+				//				  ColorFloatToByte(g_Config.cvars.crosshair_outline_color[2]),
+				//				  ColorFloatToByte(g_Config.cvars.crosshair_outline_color[3]),
 				//				  g_Config.cvars.crosshair_thickness + g_Config.cvars.crosshair_outline_thickness);
 			}
 		}
@@ -364,19 +371,19 @@ void CVisual::DrawCrosshair()
 		{
 			g_Drawing.DrawDot((m_iScreenWidth / 2) - 1,
 							  (m_iScreenHeight / 2) - 1,
-							  int(255.f * g_Config.cvars.crosshair_color[0]),
-							  int(255.f * g_Config.cvars.crosshair_color[1]),
-							  int(255.f * g_Config.cvars.crosshair_color[2]),
-							  int(255.f * g_Config.cvars.crosshair_color[3]),
+							  ColorFloatToByte(g_Config.cvars.crosshair_color[0]),
+							  ColorFloatToByte(g_Config.cvars.crosshair_color[1]),
+							  ColorFloatToByte(g_Config.cvars.crosshair_color[2]),
+							  ColorFloatToByte(g_Config.cvars.crosshair_color[3]),
 							  g_Config.cvars.crosshair_thickness);
 		}
 
 		g_Drawing.DrawCrosshair((m_iScreenWidth / 2) - 1,
 								(m_iScreenHeight / 2) - 1,
-								int(255.f * g_Config.cvars.crosshair_color[0]),
-								int(255.f * g_Config.cvars.crosshair_color[1]),
-								int(255.f * g_Config.cvars.crosshair_color[2]),
-								int(255.f * g_Config.cvars.crosshair_color[3]),
+								ColorFloatToByte(g_Config.cvars.crosshair_color[0]),
+								ColorFloatToByte(g_Config.cvars.crosshair_color[1]),
+								ColorFloatToByte(g_Config.cvars.crosshair_color[2]),
+								ColorFloatToByte(g_Config.cvars.crosshair_color[3]),
 								g_Config.cvars.crosshair_size,
 								g_Config.cvars.crosshair_gap,
 								g_Config.cvars.crosshair_thickness);
@@ -457,7 +464,7 @@ void CVisual::ESP()
 		if ( flDistance > g_Config.cvars.esp_distance )
 			continue;
 
-		float boxWidth;
+		float boxWidth = 0.5f; // Initialize to prevent undefined behavior for items
 
 		Vector vecBottom = pEntity->origin;
 		Vector vecTop = pEntity->origin;
@@ -499,7 +506,7 @@ void CVisual::ESP()
 			else
 			{
 				vecTop.z += pEntity->curstate.maxs.z;
-				vecBottom.z -= pEntity->curstate.maxs.z;
+				vecBottom.z -= pEntity->curstate.mins.z; // Fixed: use mins.z instead of maxs.z
 
 				boxWidth = (VEC_HULL_MAX.x - VEC_HULL_MIN.x) / (VEC_HULL_MAX.z - VEC_HULL_MIN.z);
 			}
@@ -536,9 +543,9 @@ void CVisual::ESP()
 			if (bPlayer && bIsEntityFriend && !g_Config.cvars.esp_show_friends)
 				continue;
 
-			int r = int(255.f * g_Config.cvars.esp_friend_color[0]);
-			int g = int(255.f * g_Config.cvars.esp_friend_color[1]);
-			int b = int(255.f * g_Config.cvars.esp_friend_color[2]);
+			int r = ColorFloatToByte(g_Config.cvars.esp_friend_color[0]);
+			int g = ColorFloatToByte(g_Config.cvars.esp_friend_color[1]);
+			int b = ColorFloatToByte(g_Config.cvars.esp_friend_color[2]);
 
 			float boxHeight = vecScreenTop[1] - vecScreenBottom[1];
 
@@ -549,21 +556,21 @@ void CVisual::ESP()
 			{
 				boxHeight = 0.f;
 
-				r = int(255.f * g_Config.cvars.esp_item_color[0]);
-				g = int(255.f * g_Config.cvars.esp_item_color[1]);
-				b = int(255.f * g_Config.cvars.esp_item_color[2]);
+				r = ColorFloatToByte(g_Config.cvars.esp_item_color[0]);
+				g = ColorFloatToByte(g_Config.cvars.esp_item_color[1]);
+				b = ColorFloatToByte(g_Config.cvars.esp_item_color[2]);
 			}
 			else if ( bIsEntityNeutral )
 			{
-				r = int(255.f * g_Config.cvars.esp_neutral_color[0]);
-				g = int(255.f * g_Config.cvars.esp_neutral_color[1]);
-				b = int(255.f * g_Config.cvars.esp_neutral_color[2]);
+				r = ColorFloatToByte(g_Config.cvars.esp_neutral_color[0]);
+				g = ColorFloatToByte(g_Config.cvars.esp_neutral_color[1]);
+				b = ColorFloatToByte(g_Config.cvars.esp_neutral_color[2]);
 			}
 			else if ( !bIsEntityFriend )
 			{
-				r = int(255.f * g_Config.cvars.esp_enemy_color[0]);
-				g = int(255.f * g_Config.cvars.esp_enemy_color[1]);
-				b = int(255.f * g_Config.cvars.esp_enemy_color[2]);
+				r = ColorFloatToByte(g_Config.cvars.esp_enemy_color[0]);
+				g = ColorFloatToByte(g_Config.cvars.esp_enemy_color[1]);
+				b = ColorFloatToByte(g_Config.cvars.esp_enemy_color[2]);
 			}
 
 			boxWidth = boxHeight * boxWidth;
@@ -705,20 +712,28 @@ void CVisual::DrawPlayerInfo_Default(int index, int iHealth, bool bIsEntityFrien
 
 		if (bIsEntityFriend)
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_friend_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_friend_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_friend_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[2]);
 		}
 		else
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_enemy_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_enemy_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_enemy_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[2]);
 		}
 
+const char* playerName = "";
+		if (g_Config.cvars.esp_box_player_name)
+		{
+			pPlayer = g_pEngineStudio->PlayerInfo(index - 1);
+			if (pPlayer)
+				playerName = pPlayer->name;
+		}
+		
 		g_Drawing.DrawStringF(g_hFontESP, int(vecScreenBottom[0]), y, nickname_r, nickname_g, nickname_b, 255, FONT_ALIGN_CENTER, "%s%s",
-								g_Config.cvars.esp_box_player_name ? (pPlayer = g_pEngineStudio->PlayerInfo(index - 1), pPlayer->name) : "",
-								g_Config.cvars.esp_box_index ? szIndex : "");
+							playerName,
+							g_Config.cvars.esp_box_index ? szIndex : "");
 	}
 }
 
@@ -808,20 +823,28 @@ void CVisual::DrawPlayerInfo_SAMP(int index, int iHealth, bool bDucking, bool bI
 
 		if (bIsEntityFriend)
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_friend_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_friend_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_friend_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[2]);
 		}
 		else
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_enemy_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_enemy_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_enemy_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[2]);
 		}
 
+const char* playerName = "";
+		if (g_Config.cvars.esp_box_player_name)
+		{
+			pPlayer = g_pEngineStudio->PlayerInfo(index - 1);
+			if (pPlayer)
+				playerName = pPlayer->name;
+		}
+		
 		g_Drawing.DrawStringF(g_hFontESP, offset_x, y, nickname_r, nickname_g, nickname_b, 255, FONT_ALIGN_CENTER, "%s%s",
-								g_Config.cvars.esp_box_player_name ? (pPlayer = g_pEngineStudio->PlayerInfo(index - 1), pPlayer->name) : "",
-								g_Config.cvars.esp_box_index ? szIndex : "");
+							playerName,
+							g_Config.cvars.esp_box_index ? szIndex : "");
 	}
 }
 
@@ -893,20 +916,28 @@ void CVisual::DrawPlayerInfo_L4D(int index, int iHealth, bool bDucking, bool bIs
 
 		if (bIsEntityFriend)
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_friend_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_friend_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_friend_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_friend_player_color[2]);
 		}
 		else
 		{
-			nickname_r = int(255.f * g_Config.cvars.esp_enemy_player_color[0]);
-			nickname_g = int(255.f * g_Config.cvars.esp_enemy_player_color[1]);
-			nickname_b = int(255.f * g_Config.cvars.esp_enemy_player_color[2]);
+			nickname_r = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[0]);
+			nickname_g = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[1]);
+			nickname_b = ColorFloatToByte(g_Config.cvars.esp_enemy_player_color[2]);
 		}
 
+const char* playerName = "";
+		if (g_Config.cvars.esp_box_player_name)
+		{
+			pPlayer = g_pEngineStudio->PlayerInfo(index - 1);
+			if (pPlayer)
+				playerName = pPlayer->name;
+		}
+		
 		g_Drawing.DrawStringF(g_hFontESP2, x, y, nickname_r, nickname_g, nickname_b, 255, FONT_ALIGN_CENTER, "%s%s",
-								g_Config.cvars.esp_box_player_name ? (pPlayer = g_pEngineStudio->PlayerInfo(index - 1), pPlayer->name) : "",
-								szInfo);
+							playerName,
+							szInfo);
 	}
 }
 
@@ -1040,7 +1071,11 @@ void CVisual::DrawBones(int index, studiohdr_t *pStudioHeader)
 				if ( !bBonePoint || g_Bones[index].nParent[j] == -1 )
 					continue;
 
-				if ( !UTIL_WorldToScreen(g_Bones[index].vecPoint[g_Bones[index].nParent[j]], vParentPoint) )
+int parentIdx = g_Bones[index].nParent[j];
+				if (parentIdx < 0 || parentIdx >= MAXSTUDIOBONES)
+					continue;
+				
+				if ( !UTIL_WorldToScreen(g_Bones[index].vecPoint[parentIdx], vParentPoint) )
 					continue;
 
 				g_Drawing.DrawLine(int(vBonePoint[0]), int(vBonePoint[1]), int(vParentPoint[0]), int(vParentPoint[1]), 255, 255, 255, 255);
@@ -1116,7 +1151,8 @@ void CVisual::ProcessBones()
 	//memset(g_Bones[index].vecPoint, 0, sizeof(bone_s::vecPoint));
 	//memset(g_Bones[index].nParent, -1, sizeof(bone_s::nParent));
 
-	// Always reset bone parent indices to prevent using stale data
+	// Always reset bone data to prevent using stale data
+	memset(g_Bones[index].vecPoint, 0, sizeof(g_Bones[index].vecPoint));
 	memset(g_Bones[index].nParent, -1, sizeof(int) * MAXSTUDIOBONES);
 
 	if (bScreenBottom && bScreenTop)
@@ -1126,9 +1162,13 @@ void CVisual::ProcessBones()
 		mstudiobone_t *pBone = (mstudiobone_t *)((byte *)pStudioHeader + pStudioHeader->boneindex);
 		Vector vecFrameVelocity = pEntity->curstate.velocity * (pEntity->curstate.animtime - pEntity->prevstate.animtime);
 
-		Assert( pStudioHeader->numbones < MAXSTUDIOBONES );
+		// Runtime bounds check - don't rely on Assert in release builds
+		int numBones = min(pStudioHeader->numbones, MAXSTUDIOBONES);
+		
+		if (!g_pBoneTransform)
+			return;
 
-		for (int i = 0; i < pStudioHeader->numbones; ++i)
+		for (int i = 0; i < numBones; ++i)
 		{
 			Vector vecBone = Vector( (*g_pBoneTransform)[i][0][3], (*g_pBoneTransform)[i][1][3], (*g_pBoneTransform)[i][2][3] ) + vecFrameVelocity;
 
@@ -1212,9 +1252,9 @@ CVisual::CVisual()
 	m_flFadeTime = g_Config.cvars.jumpspeed_fade_duration;
 	m_flJumpSpeed = 0.f;
 
-	m_clFadeFrom[0] = int(255.f * g_Config.cvars.speed_color[0]);
-	m_clFadeFrom[1] = int(255.f * g_Config.cvars.speed_color[1]);
-	m_clFadeFrom[2] = int(255.f * g_Config.cvars.speed_color[2]);
+	m_clFadeFrom[0] = ColorFloatToByte(g_Config.cvars.speed_color[0]);
+	m_clFadeFrom[1] = ColorFloatToByte(g_Config.cvars.speed_color[1]);
+	m_clFadeFrom[2] = ColorFloatToByte(g_Config.cvars.speed_color[2]);
 
 	m_bOnGround = true;
 
