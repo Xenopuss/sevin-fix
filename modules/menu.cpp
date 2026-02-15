@@ -608,6 +608,29 @@ void CMenuModule::DrawWindowVisuals()
 
 					ImGui::Separator();
 
+					ImGui::Spacing();
+					ImGui::Text("X-Ray Mode");
+					ImGui::Spacing();
+
+					ImGui::Checkbox("Enable X-Ray Mode", &g_Config.cvars.wallhack_xray);
+
+					ImGui::Spacing();
+
+					ImGui::ColorEdit3("Visible Color", g_Config.cvars.xray_visible_color);
+
+					ImGui::Spacing();
+
+					ImGui::ColorEdit3("Occluded Color", g_Config.cvars.xray_occluded_color);
+
+					ImGui::Spacing();
+
+					ImGui::Checkbox("Only Players", &g_Config.cvars.xray_visible_only_players);
+
+					ImGui::Spacing();
+					ImGui::Spacing();
+
+					ImGui::Separator();
+
 					ImGui::Text("");
 					ImGui::Spacing();
 
@@ -915,29 +938,6 @@ void CMenuModule::DrawWindowVisuals()
 					ImGui::Spacing();
 
 					ImGui::ColorEdit3("Tint Color", g_Config.cvars.transparent_color);
-
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					ImGui::Separator();
-
-					ImGui::Spacing();
-					ImGui::Text("X-Ray Mode");
-					ImGui::Spacing();
-
-					ImGui::Checkbox("Enable X-Ray Mode", &g_Config.cvars.wallhack_xray);
-
-					ImGui::Spacing();
-
-					ImGui::ColorEdit3("Visible Color (Green)", g_Config.cvars.xray_visible_color);
-
-					ImGui::Spacing();
-
-					ImGui::ColorEdit3("Occluded Color (Red)", g_Config.cvars.xray_occluded_color);
-
-					ImGui::Spacing();
-
-					ImGui::Checkbox("Only Players", &g_Config.cvars.xray_visible_only_players);
 
 					ImGui::Spacing();
 					ImGui::Spacing();

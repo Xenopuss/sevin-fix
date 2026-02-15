@@ -1276,31 +1276,40 @@ bool CVisual::StudioRenderModel()
 
 		if (!g_Config.cvars.xray_visible_only_players || (pEntity && pEntity->player))
 		{
+			extern int g_iChamsType;
+			extern bool g_bOverrideColor;
+			extern float g_flOverrideColor_R;
+			extern float g_flOverrideColor_G;
+			extern float g_flOverrideColor_B;
+
+			g_bOverrideColor = true;
+			g_iChamsType = 1;
+
+			pEntity->curstate.rendermode = 0;
+			pEntity->curstate.renderfx = 0;
+			pEntity->curstate.renderamt = 0;
+
 			glDisable(GL_TEXTURE_2D);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			g_flOverrideColor_R = g_Config.cvars.xray_occluded_color[0];
+			g_flOverrideColor_G = g_Config.cvars.xray_occluded_color[1];
+			g_flOverrideColor_B = g_Config.cvars.xray_occluded_color[2];
 
 			glDepthFunc(GL_GREATER);
-			glColor4f(
-				g_Config.cvars.xray_occluded_color[0],
-				g_Config.cvars.xray_occluded_color[1],
-				g_Config.cvars.xray_occluded_color[2],
-				1.0f
-			);
+			glDisable(GL_DEPTH_TEST);
 			g_pStudioRenderer->StudioRenderFinal_Hardware();
 
+			g_flOverrideColor_R = g_Config.cvars.xray_visible_color[0];
+			g_flOverrideColor_G = g_Config.cvars.xray_visible_color[1];
+			g_flOverrideColor_B = g_Config.cvars.xray_visible_color[2];
+
+			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
-			glColor4f(
-				g_Config.cvars.xray_visible_color[0],
-				g_Config.cvars.xray_visible_color[1],
-				g_Config.cvars.xray_visible_color[2],
-				1.0f
-			);
 			g_pStudioRenderer->StudioRenderFinal_Hardware();
 
-			glDepthFunc(GL_LEQUAL);
 			glEnable(GL_TEXTURE_2D);
-			glDisable(GL_BLEND);
+			g_bOverrideColor = false;
 
 			return true;
 		}
