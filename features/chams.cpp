@@ -162,8 +162,8 @@ bool __fastcall Chams(cl_entity_s *pEntity, int iChams, bool bChamsWall, float f
 			g_flOverrideColor_G = flChamsWallColor[1];
 			g_flOverrideColor_B = flChamsWallColor[2];
 
+			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_GREATER);
-			glDisable(GL_DEPTH_TEST);
 
 			g_pStudioRenderer->StudioRenderFinal_Hardware();
 		}
