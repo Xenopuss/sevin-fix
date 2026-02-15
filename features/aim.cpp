@@ -85,7 +85,16 @@ void CAim::NoRecoil(usercmd_t *cmd)
 void CAim::Pre_V_CalcRefdef(ref_params_t *pparams)
 {
 	m_vecPunchAngle = *reinterpret_cast<Vector *>(pparams->punchangle);
-	m_vecEVPunchAngle = *ev_punchangle;
+	
+	// Fix: Add null check for ev_punchangle to prevent crash
+	if (ev_punchangle)
+	{
+		m_vecEVPunchAngle = *ev_punchangle;
+	}
+	else
+	{
+		m_vecEVPunchAngle = Vector(0, 0, 0);
+	}
 }
 
 void CAim::Post_V_CalcRefdef(ref_params_t *pparams)

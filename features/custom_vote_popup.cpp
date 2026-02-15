@@ -193,10 +193,12 @@ void CUserVotePopup::ValidateMessage(const char **pszMessage)
 {
 	if ( !(**pszMessage) )
 	{
+		// Empty string - don't strdup, just set to NULL
 		*pszMessage = NULL;
 	}
 	else
 	{
+		// Non-empty string - duplicate it
 		*pszMessage = strdup(*pszMessage);
 	}
 }

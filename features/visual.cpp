@@ -56,9 +56,9 @@ struct bone_s
 };
 
 #ifdef PROCESS_PLAYER_BONES_ONLY
-Hitbox g_Bones[MAXCLIENTS + 1];
+Hitbox g_Bones[MAXCLIENTS + 1];  // Indices 0-MAXCLIENTS (inclusive)
 #else
-bone_s g_Bones[MAXENTS + 1];
+bone_s g_Bones[MAXENTS + 1];     // Indices 0-MAXENTS (inclusive), but MAXENTS is out of bounds
 #endif
 
 //-----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void CVisual::ShowSpeed()
 {
 	if ( !g_pClient->IsSpectating() && !(g_CamHack.IsEnabled() && g_Config.cvars.camhack_hide_hud) )
 	{
-		float flSpeed;
+		float flSpeed = 0.f;  // Fix: Initialize to prevent undefined behavior
 
 		if (g_Config.cvars.show_speed && g_pPlayerMove)
 		{

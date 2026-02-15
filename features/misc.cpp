@@ -919,7 +919,8 @@ void CMisc::JumpBug(float frametime, struct usercmd_s *cmd)
 				break;
 
 			default:
-				if (flFrameZDist > 0.f && fabsf(flHeight - flFrameZDist * 1.5f) <= 20.f)
+				// Fix: Add epsilon check to prevent division by zero
+				if (flFrameZDist > 0.001f && fabsf(flHeight - flFrameZDist * 1.5f) <= 20.f)
 				{
 					float flNeedSpeed = fabsf(flHeight - 19.f);
 					float flScale = fabsf(flNeedSpeed / flFrameZDist);

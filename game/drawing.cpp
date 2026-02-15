@@ -446,8 +446,10 @@ void CDrawing::DrawStringF(vgui::HFont font, int x, int y, int r, int g, int b, 
 {
 	va_list va_alist;
 	va_start(va_alist, pszString);
-	_vsnprintf(s_szBuffer, sizeof(s_szBuffer), pszString, va_alist);
+	// Fix: Ensure null termination even if buffer is truncated
+	int len = _vsnprintf(s_szBuffer, sizeof(s_szBuffer) - 1, pszString, va_alist);
 	va_end(va_alist);
+	s_szBuffer[sizeof(s_szBuffer) - 1] = '\0';  // Explicit null termination
 	// Fix: Use -1 to convert entire null-terminated string instead of fixed 256 bytes
 	MultiByteToWideChar(CP_UTF8, 0, s_szBuffer, -1, s_wszBuffer, sizeof(s_wszBuffer) / sizeof(wchar_t));
 
@@ -466,8 +468,10 @@ void CDrawing::DrawStringACPF(vgui::HFont font, int x, int y, int r, int g, int 
 {
 	va_list va_alist;
 	va_start(va_alist, pszString);
-	_vsnprintf(s_szBuffer, sizeof(s_szBuffer), pszString, va_alist);
+	// Fix: Ensure null termination even if buffer is truncated
+	_vsnprintf(s_szBuffer, sizeof(s_szBuffer) - 1, pszString, va_alist);
 	va_end(va_alist);
+	s_szBuffer[sizeof(s_szBuffer) - 1] = '\0';  // Explicit null termination
 	// Fix: Use -1 to convert entire null-terminated string instead of fixed 256 bytes
 	MultiByteToWideChar(CP_ACP, 0, s_szBuffer, -1, s_wszBuffer, sizeof(s_wszBuffer) / sizeof(wchar_t));
 

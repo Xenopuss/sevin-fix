@@ -120,15 +120,19 @@ void CMessageSpammer::CreateMove(float frametime, struct usercmd_s *cmd, int act
 
 void CMessageSpammer::RunTasks()
 {
-	for (size_t i = 0; i < m_tasks.size(); ++i)
+	// Fix: Use iterator-based removal to avoid size_t underflow and use-after-free
+	for (auto it = m_tasks.begin(); it != m_tasks.end(); )
 	{
-		CSpamTask *pTask = m_tasks[i];
+		CSpamTask *pTask = *it;
 
 		if (!pTask->Run())
 		{
-			m_tasks.erase(m_tasks.begin() + i);
+			it = m_tasks.erase(it);
 			delete pTask;
-			--i;
+		}
+		else
+		{
+			++it;
 		}
 	}
 }

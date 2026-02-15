@@ -242,7 +242,9 @@ void CChatColors::LoadPlayers()
 			{
 				Warning("[Chat Colors] Failed to parse file \"sven_internal/chat_colors_players.txt\" at line %d\n", nLine);
 				Warning("[Chat Colors] Follow this format >> STEAM64 ID : COLOR_NUMBER\n");
-				break;
+				// Fix: Close file before breaking to prevent resource leak
+				fclose(file);
+				return;
 			}
 		}
 

@@ -307,14 +307,18 @@ void CModelsManager::UpdatePlayerModel(int index)
 			{
 				if ( !g_PlayerModelReplacementInfo[index].model_replaced )
 				{
-					if ( pIgnoreSteamID == NULL && pTargetModel == NULL )
+					if ( pIgnoreSteamID == NULL && pTargetModel == NULL && !g_ReplacePlayerModel.empty() )
 					{
 						const char *pszModel = (const char *)(&g_pUserInfo[UserInfo_ModelOffset * index]);
 
-						memcpy( (char *)pszModel, g_ReplacePlayerModel.c_str(), g_ReplacePlayerModel.length() + 1 );
-
-						g_PlayerModelReplacementInfo[index].random_model = 0;
-						g_PlayerModelReplacementInfo[index].model_replaced = true;
+						// Fix: Check if memory is writable and model name fits
+						size_t modelLen = g_ReplacePlayerModel.length() + 1;
+						if (modelLen <= 64)  // Assuming max model name length
+						{
+							memcpy( (char *)pszModel, g_ReplacePlayerModel.c_str(), modelLen );
+							g_PlayerModelReplacementInfo[index].random_model = 0;
+							g_PlayerModelReplacementInfo[index].model_replaced = true;
+						}
 					}
 				}
 			}
@@ -325,23 +329,27 @@ void CModelsManager::UpdatePlayerModel(int index)
 	{
 		if ( index != g_pPlayerMove->player_index || (index == g_pPlayerMove->player_index && g_Config.cvars.replace_model_on_self) )
 		{
-			if ( !g_PlayerModelReplacementInfo[index].model_replaced )
+			if ( !g_PlayerModelReplacementInfo[index].model_replaced && !m_RandomModels.empty() )
 			{
 				if ( pIgnoreSteamID == NULL && pTargetModel == NULL )
 				{
 					int model_index = rand() % m_RandomModels.size();
 					
-					if (g_PlayerModelReplacementInfo[index].random_model != 0)
+					if (g_PlayerModelReplacementInfo[index].random_model != 0 && g_PlayerModelReplacementInfo[index].random_model <= (int)m_RandomModels.size())
 						model_index = g_PlayerModelReplacementInfo[index].random_model = (g_PlayerModelReplacementInfo[index].random_model - 1);
 					else
 						model_index = rand() % m_RandomModels.size();
 
 					const char *pszModel = (const char *)(&g_pUserInfo[UserInfo_ModelOffset * index]);
 
-					memcpy( (char *)pszModel, m_RandomModels[model_index].c_str(), m_RandomModels[model_index].length() + 1 );
-
-					g_PlayerModelReplacementInfo[index].random_model = model_index + 1;
-					g_PlayerModelReplacementInfo[index].model_replaced = true;
+					// Fix: Check if model name fits before copying
+					size_t randomModelLen = m_RandomModels[model_index].length() + 1;
+					if (randomModelLen <= 64)  // Assuming max model name length
+					{
+						memcpy( (char *)pszModel, m_RandomModels[model_index].c_str(), randomModelLen );
+						g_PlayerModelReplacementInfo[index].random_model = model_index + 1;
+						g_PlayerModelReplacementInfo[index].model_replaced = true;
+					}
 				}
 			}
 		}
@@ -353,12 +361,16 @@ void CModelsManager::UpdatePlayerModel(int index)
 		{
 			if ( !g_PlayerModelReplacementInfo[index].model_replaced )
 			{
-				const char *pszModel = (const char *)(&g_pUserInfo[UserInfo_ModelOffset * index]);
+const char *pszModel = (const char *)(&g_pUserInfo[UserInfo_ModelOffset * index]);
 
-				memcpy( (char *)pszModel, (*pTargetModel).c_str(), (*pTargetModel).length() + 1 );
-
-				g_PlayerModelReplacementInfo[index].random_model = 0;
-				g_PlayerModelReplacementInfo[index].model_replaced = true;
+					// Fix: Check if model name fits before copying
+					size_t targetModelLen = (*pTargetModel).length() + 1;
+					if (targetModelLen <= 64)  // Assuming max model name length
+					{
+						memcpy( (char *)pszModel, (*pTargetModel).c_str(), targetModelLen );
+						g_PlayerModelReplacementInfo[index].random_model = 0;
+						g_PlayerModelReplacementInfo[index].model_replaced = true;
+				}
 			}
 		}
 	}
