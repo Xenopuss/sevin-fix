@@ -1,4 +1,4 @@
-# Sven Internal v2.0.12
+# Sven Internal v3.0.6
 
 Sven Internal is a C++ plugin for [SvenMod](https://github.com/sw1ft747/SvenMod) that provides various cheats and gameplay enhancements for Sven Co-op.
 
