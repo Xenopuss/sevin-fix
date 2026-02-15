@@ -59,6 +59,7 @@ bool __fastcall Glow(cl_entity_s *pEntity, int iGlow, bool bGlowWall, int iChams
 
 			glDepthFunc(GL_GREATER);
 			glDisable(GL_DEPTH_TEST);
+			glDepthMask(GL_FALSE);
 
 			g_pEngineStudio->SetForceFaceFlags(STUDIO_NF_CHROME);
 
@@ -74,6 +75,8 @@ bool __fastcall Glow(cl_entity_s *pEntity, int iGlow, bool bGlowWall, int iChams
 				g_pTriangleAPI->SpriteTexture(g_pStudioRenderer->m_pChromeSprite, 0);
 
 			g_pStudioRenderer->StudioRenderFinal_Hardware();
+
+			glDepthMask(GL_TRUE);
 
 			if (!g_Config.cvars.glow_optimize)
 				glEnable(GL_DEPTH_TEST);

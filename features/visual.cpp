@@ -597,7 +597,7 @@ void CVisual::ESP()
 			int g = ColorFloatToByte(g_Config.cvars.esp_friend_color[1]);
 			int b = ColorFloatToByte(g_Config.cvars.esp_friend_color[2]);
 
-			float boxHeight = vecScreenTop[1] - vecScreenBottom[1];
+			float boxHeight = vecScreenBottom[1] - vecScreenTop[1];
 
 			if ( bPlayer && iHealth < -1 ) // enemy team
 				bIsEntityFriend = false;
