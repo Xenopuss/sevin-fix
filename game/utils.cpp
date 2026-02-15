@@ -116,11 +116,12 @@ CON_COMMAND(setang, "Sets view angles")
 
 const wchar_t *UTIL_CStringToWideCString(const char *pszString)
 {
-	const size_t length = strlen(pszString) + 1;
-	wchar_t *wcString = new wchar_t[length];
-
+	// Fix: Use static buffer to prevent memory leak
+	// Note: Not thread-safe, but better than leaking memory
+	static wchar_t wcString[256];
+	size_t length = (strlen(pszString) + 1 < sizeof(wcString) / sizeof(wchar_t)) ? strlen(pszString) + 1 : sizeof(wcString) / sizeof(wchar_t);
 	mbstowcs(wcString, pszString, length);
-
+	wcString[255] = L'\0'; // Ensure null termination
 	return wcString;
 }
 

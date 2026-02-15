@@ -8,8 +8,13 @@
 #include <cmath>
 
 // Helper to safely convert float color [0.0-1.0] to byte [0-255] with clamping
+// Handles NaN and Infinity
 inline int ColorFloatToByte(float val)
 {
+	// Check for NaN or Infinity
+	if (std::isnan(val) || std::isinf(val))
+		return 0;
+	
 	int result = int(255.f * val);
 	return (result < 0) ? 0 : (result > 255) ? 255 : result;
 }
@@ -398,6 +403,9 @@ void CVisual::ESP()
 	cl_entity_s *pLocal = g_pEngineFuncs->GetLocalPlayer();
 	cl_entity_s *pViewModel = g_pEngineFuncs->GetViewModel();
 
+	if (!pLocal || !pViewModel)
+		return;
+
 	int nLocalPlayer = pLocal->index;
 
 	// Removed OpenMP - OpenGL/VGUI is not thread-safe, causes flickering
@@ -518,10 +526,13 @@ void CVisual::ESP()
 					vecTop.z += pEntity->curstate.maxs.z;
 					vecBottom.z -= pEntity->curstate.mins.z;
 				}
-				vecBottom.z -= pEntity->curstate.mins.z;
 
-				boxWidth = max(pEntity->curstate.maxs.x - pEntity->curstate.mins.x, pEntity->curstate.maxs.y - pEntity->curstate.mins.y) /
-					(pEntity->curstate.maxs.z - pEntity->curstate.mins.z);
+				// Prevent division by zero
+				float zDiff = pEntity->curstate.maxs.z - pEntity->curstate.mins.z;
+				if (zDiff <= 0.0f)
+					zDiff = 1.0f; // Default to avoid division by zero
+
+				boxWidth = max(pEntity->curstate.maxs.x - pEntity->curstate.mins.x, pEntity->curstate.maxs.y - pEntity->curstate.mins.y) / zDiff;
 			}
 		}
 		else
@@ -735,7 +746,7 @@ void CVisual::DrawPlayerInfo_Default(int index, int iHealth, bool bIsEntityFrien
 
 	if (g_Config.cvars.esp_box_player_name || g_Config.cvars.esp_box_index)
 	{
-		static char szIndex[16];
+		char szIndex[16];
 		player_info_t *pPlayer = NULL;
 
 		if (g_Config.cvars.esp_box_index)
@@ -846,7 +857,7 @@ void CVisual::DrawPlayerInfo_SAMP(int index, int iHealth, bool bDucking, bool bI
 
 	if (g_Config.cvars.esp_box_player_name || g_Config.cvars.esp_box_index)
 	{
-		static char szIndex[16];
+		char szIndex[16];
 		player_info_t *pPlayer = NULL;
 
 		if (g_Config.cvars.esp_box_index)
@@ -900,7 +911,7 @@ void CVisual::DrawPlayerInfo_L4D(int index, int iHealth, bool bDucking, bool bIs
 	if (g_Config.cvars.esp_box_player_name || g_Config.cvars.esp_box_player_health || g_Config.cvars.esp_box_player_armor)
 	{
 		const char *szFormatString;
-		static char szInfo[16];
+		char szInfo[16];
 
 		player_info_t *pPlayer;
 
@@ -979,7 +990,7 @@ void CVisual::DrawEntityInfo_Default(int index, class_info_t classInfo, float bo
 {
 	if (g_Config.cvars.esp_box_entity_name || g_Config.cvars.esp_box_index)
 	{
-		static char szIndex[16];
+		char szIndex[16];
 
 		if (g_Config.cvars.esp_box_index)
 			snprintf(szIndex, sizeof(szIndex), g_Config.cvars.esp_box_entity_name ? " (%d)" : "(%d)", index);
@@ -1003,7 +1014,7 @@ void CVisual::DrawEntityInfo_SAMP(int index, class_info_t classInfo, Vector vecT
 		int x = int(vecScreen[0]);
 		int y = int(vecScreen[1]);
 
-		static char szIndex[16];
+		char szIndex[16];
 
 		if (g_Config.cvars.esp_box_index)
 			snprintf(szIndex, sizeof(szIndex), g_Config.cvars.esp_box_entity_name ? " (%d)" : "(%d)", index);
@@ -1026,7 +1037,7 @@ void CVisual::DrawEntityInfo_L4D(int index, class_info_t classInfo, Vector vecTo
 		int x = int(vecScreen[0]);
 		int y = int(vecScreen[1]);
 
-		static char szIndex[16];
+		char szIndex[16];
 
 		if (g_Config.cvars.esp_box_index)
 			snprintf(szIndex, sizeof(szIndex), g_Config.cvars.esp_box_entity_name ? " (%d)" : "(%d)", index);
@@ -1075,8 +1086,8 @@ void CVisual::DrawBox(bool bPlayer, bool bItem, int iHealth, float boxHeight, fl
 
 void CVisual::DrawBones(int index, studiohdr_t *pStudioHeader)
 {
-	// Bounds check
-	if (index < 0 || index > MAXENTS)
+	// Bounds check - fix off-by-one (MAXENTS is out of bounds)
+	if (index < 0 || index >= MAXENTS)
 		return;
 
 	#ifdef PROCESS_PLAYER_BONES_ONLY
@@ -1135,7 +1146,7 @@ void CVisual::ProcessBones()
 	cl_entity_s *pViewModel = g_pEngineFuncs->GetViewModel();
 	cl_entity_s *pLocal = g_pEngineFuncs->GetLocalPlayer();
 
-	if (!pEntity || !pLocal)
+	if (!pEntity || !pLocal || !pViewModel)
 		return;
 
 #ifdef PROCESS_PLAYER_BONES_ONLY
@@ -1146,8 +1157,8 @@ void CVisual::ProcessBones()
 	int index = pEntity->index;
 	int nLocalPlayer = pLocal->index;
 
-	// Bounds check for g_Bones array
-	if (index < 0 || index > MAXENTS)
+	// Bounds check for g_Bones array - fix off-by-one (MAXENTS is out of bounds)
+	if (index < 0 || index >= MAXENTS)
 		return;
 
 	studiohdr_t *pStudioHeader = NULL;
@@ -1161,7 +1172,10 @@ void CVisual::ProcessBones()
 
 	// Added messagenum tolerance to prevent flickering
 	const int MSG_TOLERANCE_BONES = 8; // Match ESP tolerance for distant entities
-	if (pEntity == pViewModel || pEntity->curstate.messagenum < pLocal->curstate.messagenum - MSG_TOLERANCE_BONES || pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f)
+	// Fix operator precedence: explicit parentheses for bounds check
+	if (pEntity == pViewModel || 
+	    pEntity->curstate.messagenum < pLocal->curstate.messagenum - MSG_TOLERANCE_BONES || 
+	    (pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f))
 		return;
 
 	if (!(pStudioHeader = (studiohdr_t *)g_pEngineStudio->Mod_Extradata(pModel)) || pStudioHeader->numhitboxes == 0)

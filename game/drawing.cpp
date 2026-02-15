@@ -220,6 +220,10 @@ int CDrawing::GetNumberSpriteHeight()
 
 void CDrawing::DrawCircle3D(Vector &position, float points, float radius, int r, int g, int b, int a)
 {
+	// Prevent division by zero
+	if (points <= 0.0f)
+		return;
+	
 	float step = (float)M_PI * 2.0f / points;
 
 	for (float a = 0; a < (M_PI * 2.0f); a += step)
@@ -237,6 +241,10 @@ void CDrawing::DrawCircle3D(Vector &position, float points, float radius, int r,
 
 void CDrawing::DrawCircle(float position[2], float points, float radius, int r, int g, int b, int a)
 {
+	// Prevent division by zero
+	if (points <= 0.0f)
+		return;
+	
 	float step = (float)M_PI * 2.0f / points;
 
 	float start[2], end[2];
@@ -440,7 +448,8 @@ void CDrawing::DrawStringF(vgui::HFont font, int x, int y, int r, int g, int b, 
 	va_start(va_alist, pszString);
 	_vsnprintf(s_szBuffer, sizeof(s_szBuffer), pszString, va_alist);
 	va_end(va_alist);
-	MultiByteToWideChar(CP_UTF8, 0, s_szBuffer, 256, s_wszBuffer, 256);
+	// Fix: Use -1 to convert entire null-terminated string instead of fixed 256 bytes
+	MultiByteToWideChar(CP_UTF8, 0, s_szBuffer, -1, s_wszBuffer, sizeof(s_wszBuffer) / sizeof(wchar_t));
 
 	int width, height;
 	g_pVGUI->Surface()->GetTextSize(font, s_wszBuffer, width, height);
@@ -459,7 +468,8 @@ void CDrawing::DrawStringACPF(vgui::HFont font, int x, int y, int r, int g, int 
 	va_start(va_alist, pszString);
 	_vsnprintf(s_szBuffer, sizeof(s_szBuffer), pszString, va_alist);
 	va_end(va_alist);
-	MultiByteToWideChar(CP_ACP, 0, s_szBuffer, 256, s_wszBuffer, 256);
+	// Fix: Use -1 to convert entire null-terminated string instead of fixed 256 bytes
+	MultiByteToWideChar(CP_ACP, 0, s_szBuffer, -1, s_wszBuffer, sizeof(s_wszBuffer) / sizeof(wchar_t));
 
 	int width, height;
 	g_pVGUI->Surface()->GetTextSize(font, s_wszBuffer, width, height);
