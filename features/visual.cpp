@@ -113,12 +113,6 @@ CON_COMMAND_EXTERN(sc_transparent_walls, ConCommand_TransparentWalls, "Toggle tr
 	g_Config.cvars.wallhack_transparent = !g_Config.cvars.wallhack_transparent;
 }
 
-CON_COMMAND_EXTERN(sc_xray_mode, ConCommand_XRayMode, "Toggle X-Ray wallhack mode")
-{
-	Msg(g_Config.cvars.wallhack_xray ? "X-Ray mode disabled\n" : "X-Ray mode enabled\n");
-	g_Config.cvars.wallhack_xray = !g_Config.cvars.wallhack_xray;
-}
-
 CON_COMMAND_EXTERN(sc_esp, ConCommand_ESP, "Toggle ESP")
 {
 	Msg(g_Config.cvars.esp ? "ESP disabled\n" : "ESP enabled\n");
@@ -1268,51 +1262,6 @@ bool CVisual::StudioRenderModel()
 	else
 	{
 		r_drawentities->value = flDrawEntitiesMode;
-	}
-
-	if (g_Config.cvars.wallhack_xray && r_drawentities->value >= 2.0f && r_drawentities->value <= 5.0f)
-	{
-		cl_entity_s *pEntity = g_pEngineStudio->GetCurrentEntity();
-
-		if (!g_Config.cvars.xray_visible_only_players || (pEntity && pEntity->player))
-		{
-			extern int g_iChamsType;
-			extern bool g_bOverrideColor;
-			extern float g_flOverrideColor_R;
-			extern float g_flOverrideColor_G;
-			extern float g_flOverrideColor_B;
-
-			g_bOverrideColor = true;
-			g_iChamsType = 1;
-
-			pEntity->curstate.rendermode = 0;
-			pEntity->curstate.renderfx = 0;
-			pEntity->curstate.renderamt = 0;
-
-			glDisable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, 0);
-
-			g_flOverrideColor_R = g_Config.cvars.xray_occluded_color[0];
-			g_flOverrideColor_G = g_Config.cvars.xray_occluded_color[1];
-			g_flOverrideColor_B = g_Config.cvars.xray_occluded_color[2];
-
-			glDepthFunc(GL_GREATER);
-			glDisable(GL_DEPTH_TEST);
-			g_pStudioRenderer->StudioRenderFinal_Hardware();
-
-			g_flOverrideColor_R = g_Config.cvars.xray_visible_color[0];
-			g_flOverrideColor_G = g_Config.cvars.xray_visible_color[1];
-			g_flOverrideColor_B = g_Config.cvars.xray_visible_color[2];
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			g_pStudioRenderer->StudioRenderFinal_Hardware();
-
-			glEnable(GL_TEXTURE_2D);
-			g_bOverrideColor = false;
-
-			return true;
-		}
 	}
 
 	if (g_Config.cvars.wallhack && r_drawentities->value >= 2.0f && r_drawentities->value <= 5.0f)
