@@ -524,12 +524,12 @@ void CVisual::ESP()
 				if ( pEntity->curstate.maxs.z == 0.0f && pEntity->curstate.mins.z == 0.0f && flDistance > 500.0f )
 				{
 					vecTop.z += 72.0f;
-					vecBottom.z += 36.0f;
+					vecBottom.z -= 36.0f;
 				}
 				else
 				{
 					vecTop.z += pEntity->curstate.maxs.z;
-					vecBottom.z -= pEntity->curstate.mins.z;
+					vecBottom.z += pEntity->curstate.mins.z;
 				}
 
 				// Prevent division by zero
@@ -549,14 +549,14 @@ void CVisual::ESP()
 			if ( pEntity->curstate.usehull )
 			{
 				vecTop.z += VEC_DUCK_HULL_MAX.z;
-				vecBottom.z -= VEC_DUCK_HULL_MIN.z;
+				vecBottom.z += VEC_DUCK_HULL_MIN.z;
 
 				boxWidth = (VEC_DUCK_HULL_MAX.x - VEC_DUCK_HULL_MIN.x) / (VEC_DUCK_HULL_MAX.z - VEC_DUCK_HULL_MIN.z);
 			}
 			else
 			{
 				vecTop.z += VEC_HULL_MAX.z;
-				vecBottom.z -= VEC_HULL_MIN.z;
+				vecBottom.z += VEC_HULL_MIN.z;
 
 				boxWidth = (VEC_HULL_MAX.x - VEC_HULL_MIN.x) / (VEC_HULL_MAX.z - VEC_HULL_MIN.z);
 			}
