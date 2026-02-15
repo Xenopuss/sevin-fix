@@ -215,6 +215,14 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("Transparent_G", cvars.transparent_color[1]);
 			ConfigManager()->ImportParam("Transparent_B", cvars.transparent_color[2]);
 			ConfigManager()->ImportParam("TransparentBlendMode", cvars.transparent_blend_mode);
+			ConfigManager()->ImportParam("XRayMode", cvars.wallhack_xray);
+			ConfigManager()->ImportParam("XRayVisible_R", cvars.xray_visible_color[0]);
+			ConfigManager()->ImportParam("XRayVisible_G", cvars.xray_visible_color[1]);
+			ConfigManager()->ImportParam("XRayVisible_B", cvars.xray_visible_color[2]);
+			ConfigManager()->ImportParam("XRayOccluded_R", cvars.xray_occluded_color[0]);
+			ConfigManager()->ImportParam("XRayOccluded_G", cvars.xray_occluded_color[1]);
+			ConfigManager()->ImportParam("XRayOccluded_B", cvars.xray_occluded_color[2]);
+			ConfigManager()->ImportParam("XRayVisibleOnlyPlayers", cvars.xray_visible_only_players);
 
 			ConfigManager()->EndSectionImport();
 		}
@@ -678,6 +686,14 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("Transparent_G", cvars.transparent_color[1]);
 			ConfigManager()->ExportParam("Transparent_B", cvars.transparent_color[2]);
 			ConfigManager()->ExportParam("TransparentBlendMode", cvars.transparent_blend_mode);
+			ConfigManager()->ExportParam("XRayMode", cvars.wallhack_xray);
+			ConfigManager()->ExportParam("XRayVisible_R", cvars.xray_visible_color[0]);
+			ConfigManager()->ExportParam("XRayVisible_G", cvars.xray_visible_color[1]);
+			ConfigManager()->ExportParam("XRayVisible_B", cvars.xray_visible_color[2]);
+			ConfigManager()->ExportParam("XRayOccluded_R", cvars.xray_occluded_color[0]);
+			ConfigManager()->ExportParam("XRayOccluded_G", cvars.xray_occluded_color[1]);
+			ConfigManager()->ExportParam("XRayOccluded_B", cvars.xray_occluded_color[2]);
+			ConfigManager()->ExportParam("XRayVisibleOnlyPlayers", cvars.xray_visible_only_players);
 
 			ConfigManager()->EndSectionExport();
 		}

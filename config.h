@@ -142,6 +142,11 @@ public:
 		float transparent_color[3] = { 1.0f, 1.0f, 1.0f };
 		int transparent_blend_mode = 0;
 
+		bool wallhack_xray = false;
+		float xray_visible_color[3] = { 0.0f, 1.0f, 0.0f };
+		float xray_occluded_color[3] = { 1.0f, 0.0f, 0.0f };
+		bool xray_visible_only_players = true;
+
 		//-----------------------------------------------------------------------------
 		// Models Manager
 		//-----------------------------------------------------------------------------

@@ -170,7 +170,14 @@ void OnMenuClose()
 
 DECLARE_FUNC(void, APIENTRY, HOOKED_glBegin, GLenum mode) // wh
 {
-	if (g_Config.cvars.wallhack)
+	if (g_Config.cvars.wallhack_xray)
+	{
+		if (mode == GL_POLYGON)
+			glDepthRange(0.5, 1);
+		else if (mode == GL_TRIANGLES || mode == GL_TRIANGLE_STRIP || mode == GL_TRIANGLE_FAN)
+			glDepthRange(0, 0.25);
+	}
+	else if (g_Config.cvars.wallhack)
 	{
 		if (mode == GL_TRIANGLES || mode == GL_TRIANGLE_STRIP || mode == GL_TRIANGLE_FAN) // humans and some objects
 			glDepthRange(0, 0.25);

@@ -113,6 +113,12 @@ CON_COMMAND_EXTERN(sc_transparent_walls, ConCommand_TransparentWalls, "Toggle tr
 	g_Config.cvars.wallhack_transparent = !g_Config.cvars.wallhack_transparent;
 }
 
+CON_COMMAND_EXTERN(sc_xray_mode, ConCommand_XRayMode, "Toggle X-Ray wallhack mode")
+{
+	Msg(g_Config.cvars.wallhack_xray ? "X-Ray mode disabled\n" : "X-Ray mode enabled\n");
+	g_Config.cvars.wallhack_xray = !g_Config.cvars.wallhack_xray;
+}
+
 CON_COMMAND_EXTERN(sc_esp, ConCommand_ESP, "Toggle ESP")
 {
 	Msg(g_Config.cvars.esp ? "ESP disabled\n" : "ESP enabled\n");
@@ -1259,6 +1265,42 @@ bool CVisual::StudioRenderModel()
 	else
 	{
 		r_drawentities->value = flDrawEntitiesMode;
+	}
+
+	if (g_Config.cvars.wallhack_xray && r_drawentities->value >= 2.0f && r_drawentities->value <= 5.0f)
+	{
+		cl_entity_s *pEntity = g_pEngineStudio->GetCurrentEntity();
+
+		if (!g_Config.cvars.xray_visible_only_players || (pEntity && pEntity->player))
+		{
+			glDisable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glDepthFunc(GL_GREATER);
+			glColor4f(
+				g_Config.cvars.xray_occluded_color[0],
+				g_Config.cvars.xray_occluded_color[1],
+				g_Config.cvars.xray_occluded_color[2],
+				1.0f
+			);
+			g_pStudioRenderer->StudioRenderFinal_Hardware();
+
+			glDepthFunc(GL_LESS);
+			glColor4f(
+				g_Config.cvars.xray_visible_color[0],
+				g_Config.cvars.xray_visible_color[1],
+				g_Config.cvars.xray_visible_color[2],
+				1.0f
+			);
+			g_pStudioRenderer->StudioRenderFinal_Hardware();
+
+			glDepthFunc(GL_LEQUAL);
+			glEnable(GL_TEXTURE_2D);
+			glDisable(GL_BLEND);
+
+			return true;
+		}
 	}
 
 	if (g_Config.cvars.wallhack && r_drawentities->value >= 2.0f && r_drawentities->value <= 5.0f)
