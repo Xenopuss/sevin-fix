@@ -205,8 +205,8 @@ bool CConfig::Load()
 			ConfigManager()->ImportParam("WireframeModels", cvars.wallhack_wireframe_models);
 			ConfigManager()->ImportParam("Wireframe_Width", cvars.wh_wireframe_width);
 			ConfigManager()->ImportParam("Wireframe_R", cvars.wh_wireframe_color[0]);
-			ConfigManager()->ImportParam("Wireframe_G", cvars.wh_wireframe_color[2]);
-			ConfigManager()->ImportParam("Wireframe_B", cvars.wh_wireframe_color[1]);
+			ConfigManager()->ImportParam("Wireframe_G", cvars.wh_wireframe_color[1]);
+			ConfigManager()->ImportParam("Wireframe_B", cvars.wh_wireframe_color[2]);
 
 			ConfigManager()->EndSectionImport();
 		}
@@ -660,8 +660,8 @@ void CConfig::Save()
 			ConfigManager()->ExportParam("WireframeModels", cvars.wallhack_wireframe_models);
 			ConfigManager()->ExportParam("Wireframe_Width", cvars.wh_wireframe_width);
 			ConfigManager()->ExportParam("Wireframe_R", cvars.wh_wireframe_color[0]);
-			ConfigManager()->ExportParam("Wireframe_G", cvars.wh_wireframe_color[2]);
-			ConfigManager()->ExportParam("Wireframe_B", cvars.wh_wireframe_color[1]);
+			ConfigManager()->ExportParam("Wireframe_G", cvars.wh_wireframe_color[1]);
+			ConfigManager()->ExportParam("Wireframe_B", cvars.wh_wireframe_color[2]);
 
 			ConfigManager()->EndSectionExport();
 		}
