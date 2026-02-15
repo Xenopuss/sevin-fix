@@ -1,19 +1,60 @@
-# Sven Internal
-Sven Internal is a C++ plugin for [SvenMod](https://github.com/sw1ft747/SvenMod) that provides to you various cheats and gameplay enhances
+# Sven Internal v2.0.12
+
+Sven Internal is a C++ plugin for [SvenMod](https://github.com/sw1ft747/SvenMod) that provides various cheats and gameplay enhancements for Sven Co-op.
 
 Currently supported version of the game: 5.25
 
-Imagine cheating in a co-op game =)
+## Attribution
 
-# How to install
-First, if you don't have installed SvenMod then download it and install (see [readme](https://github.com/sw1ft747/svenmod)). Download the archive `svenint.rar` from (releases [releases](https://github.com/sw1ft747/sven_internal/releases)) and place all files from the archive in the root folder of the game. Next, add the plugin `sven_internal.dll` to the file `plugins.txt` (see the header `Adding plugins` in SvenMod's [readme](https://github.com/sw1ft747/svenmod)). 
+This project is based on [weedgirl68/sevin](https://github.com/weedgirl68/sevin), which is itself a fork of [YMY1666527646/sven_internal](https://github.com/YMY1666527646/sven_internal).
 
-# Features
+This version includes numerous bug fixes and stability improvements over the original.
+
+## What's Fixed
+
+### ESP
+- Fixed box positioning - boxes now correctly span from feet to head instead of drawing below the entity
+- Fixed box height calculation for ducking players
+- Fixed box sizing for distant entities and items
+- Fixed minimum bounds to prevent tiny boxes
+
+### Chams
+- Fixed depth buffer corruption during hidden pass - wall-behind entities now correctly show the hidden color
+- Added `glDepthMask(GL_FALSE)` during hidden pass to prevent Z-buffer pollution
+- Fixed conflict with wallhack's `glDepthRange` settings
+
+### Wallhack
+- Fixed transparent walls feature with proper OpenGL alpha blending
+
+### Stability
+- Fixed crashes during map changes by re-acquiring bone transform pointers on video init
+- Added loading state protection to prevent rendering with invalid pointers
+- Fixed bone data corruption by properly clearing on map transitions
+- Fixed potential null pointer dereferences across multiple features
+
+### Removed Features
+The following unused/broken features were removed to improve stability:
+- Skybox replacement (pattern failed on newer game versions)
+- Models Manager (pattern failed on newer game versions)
+- R_SetupFrame hook (caused initialization errors)
+- Tertiary Attack Glitch (pattern failed)
+- ex_interp/cl_updaterate patch (pattern failed)
+
+## How to Install
+
+First, if you don't have SvenMod installed, download and install it (see [SvenMod readme](https://github.com/sw1ft747/svenmod)). 
+
+Download the archive `svenint.rar` from [releases](https://github.com/sw1ft747/sven_internal/releases) and place all files from the archive in the root folder of the game. 
+
+Next, add the plugin `sven_internal.dll` to the file `plugins.txt` (see the header `Adding plugins` in SvenMod's [readme](https://github.com/sw1ft747/svenmod)).
+
+## Features
+
 - Menu (key **INSERT** as default)
 - Customizable Configs
-- ESP
-- Wallhack
-- Glow & Chams
+- ESP (boxes, skeleton, health, armor, distance, name)
+- Wallhack (multiple modes including wireframe and transparent walls)
+- Glow & Chams (with wall-behind visibility)
 - Vectorial Strafer
 - Auto Bunnyhop
 - Auto Jumpbug
@@ -27,110 +68,75 @@ First, if you don't have installed SvenMod then download it and install (see [re
 - First-Person Roaming
 - Various Visual Hacks (Velometer, Crosshair, etc.)
 - Message Spammer
-- Skybox Replacement
 - Custom Vote Popup
 - Custom Chat Colors
 
-# Files of plugin
+## Files of Plugin
+
 The plugin uses subfolder `sven_internal` in the root directory of the game.
 
-How it looks: `../Sven Co-op/sven_internal/`.
+Path: `../Sven Co-op/sven_internal/`
 
 This folder is used to save the config, load list of players (their Steam64 ID) for **Chat Colors** and load spam tasks for **Message Spammer**.
 
-Folder `config` contains all config files. You can save your config via menu or console command `sc_save_config`, also you can load a config via concommand `sc_save_config <optional: filename>`. Automatically the plugin load the config named `default.ini`.
+- Folder `config` contains all config files
+- File `chat_colors_players.txt` allows changing nickname colors for specific players
+- Folder `message_spammer` is used by **Message Spammer** to load spam tasks
 
-File `chat_colors_players.txt` allows to change the color of nickname for a specific player, will be automatically loaded at plugin load.
+The plugin will also execute `sven_internal.cfg` from `../Sven Co-op/svencoop/` on load.
 
-Folder `message_spammer` is used by **Message Spammer** to load spam tasks.
+## Console Variables/Commands
 
-Also, when cheat loaded it will execute `sven_internal.cfg` file from folder `../Sven Co-op/svencoop/`.
+Type in the console: `sm printcvars all ? sc_`
 
-# Console Variables/Commands
-Type in the console the following command: `sm printcvars all ? sc_`.
+This will print information about each CVar/ConCommand that belongs to the plugin.
 
-The command above will print information about each CVar/ConCommand that belongs to the plugin.
+## Chat Colors
 
-# Chat Colors
-That feature lets you change the color of nickname of players when they write something in the chat.
+This feature lets you change the color of player nicknames in chat.
 
-File `chat_colors_players.txt` used for adding the players in such format: `STEAM64ID : COLOR_NUMBER`.
+File `chat_colors_players.txt` format: `STEAM64ID : COLOR_NUMBER`
 
-To convert traditional SteamID to Steam64 ID faster, you can use the following console command: `sc_steamid_to_steam64id [SteamID]`.
+To convert traditional SteamID to Steam64 ID: `sc_steamid_to_steam64id [SteamID]`
 
-There're currently 5 color numbers (slots) plus rainbow color, thus you can use 6 unique and customizable colors (can be changed in Menu).
+There are 6 color slots (0 = rainbow, 1-5 = custom colors configurable in Menu).
 
-Rainbow color has slot 0, others custom colors have slotos from 1 to 5.
-
-Example for the file:
+Example:
 ```
-76561198819023292 : 0 # it's a comment
-76561197962091295 : 5 ; it's a comment too!
+76561198819023292 : 0 # rainbow color
+76561197962091295 : 5 # custom color slot 5
 ```
 
-File `chat_colors_players.txt` automatically loads when cheat loaded. Also, you can use the console command `sc_chat_colors_load_players` to reload the list of players.
+## Message Spammer
 
-# Models Manager
-Lets you change the models of players the working directory is `models_manager`
+Uses `*.txt` files from folder `message_spammer`. Run with: `sc_ms_add <filename>`
 
-File `random_models.txt` contains the list of models that will be randomly used
+Supports keywords: `loop`, `send [message]`, `sleep [delay]`
 
-File `target_players.txt` contains the list of pairs of type `STEAM64ID = MODELNAME` to replace models for specified players
-
-File `ignored_players.txt` contains the list of Steam64 ID's that will be ignored when you replace models for specified players
-
-For more information, check the files above, they contain comments
-
-# Message Spammer
-Roughly, it's some kind of AHK.
-
-It uses `*.txt` files from folder `message_spammer` to run spam tasks. Use the following console command to run a spam task: `sc_ms_add <filename>`.
-
-It supports 3 keywords: `loop`, `send` and `sleep`.
-
-Important: Message Spammer reads the `*.txt` files sequentially.
-
-For example:
-```
-sleep 1.5
-send test string
-```
-It will be executed like: wait 1.5 seconds, then send to game chat `test string`
-
-### loop
-Must be placed at the beginning of the file.
-
-Loops the spam task, otherwise if you don't place that keyword in your .txt file, then the spam task will be executed once.
-
-### send [message]
-Sends a message to game chat.
-
-One argument: [message].
-
-### sleep [delay]
-Sleeps a spam task.
-
-One argument: [delay].
-
-**Example:**
+Example:
 ```
 loop
 send stuck
 sleep 0.35
 send play
 sleep 0.35
-send diff
-sleep 0.35
-send alone
-sleep 0.35
-send light
-sleep 0.35
-send my ears
-sleep 0.35
-send vote
-sleep 0.35
-send buy
-sleep 0.35
-send thief
-sleep 125.0
 ```
+
+## Building
+
+Requirements:
+- Visual Studio 2022 with C++ workload
+- Windows SDK
+
+Build using MSBuild:
+```
+MSBuild sven_internal.sln /p:Configuration=Release /p:Platform=x86
+```
+
+## License
+
+MIT License
+
+## Disclaimer
+
+This project is for educational purposes only. Use at your own risk. The authors are not responsible for any consequences of using this software.
